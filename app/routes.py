@@ -2,7 +2,7 @@ from app import app
 from flask import jsonify
 
 
-@app.route('/list/<id:int>', methods=['GET'])
+@app.route('/list/<int:id>', methods=['GET'])
 def watch_list_get():
     """
     Obtain watch list of user with given id.
@@ -12,7 +12,7 @@ def watch_list_get():
     pass
 
 
-@app.route('/list/<id:int>', methods=['POST'])
+@app.route('/list/<int:id>', methods=['POST'])
 def watch_list_post():
     """
     Obtain watch list of user with given id.
@@ -22,7 +22,7 @@ def watch_list_post():
     pass
 
 
-@app.route('/shows/<id:int>', methods=['POST'])
+@app.route('/shows/<int:id>', methods=['POST'])
 def show_create():
     """
     Create a new show.
@@ -42,7 +42,7 @@ def show_all():
     pass
 
 
-@app.route('/shows/<id:int>', methods=['GET'])
+@app.route('/shows/<int:id>', methods=['GET'])
 def show_get():
     """
     Get information about a specific show.
@@ -52,7 +52,7 @@ def show_get():
     pass
 
 
-@app.route('/recommendations/<id:int>', methods=['GET'])
+@app.route('/recommendations/<int:id>', methods=['GET'])
 def recommendations_get():
     """
     Get recommendations for a specific user.
