@@ -1,0 +1,5 @@
+flask
+Jinja2
+flask-login
+sqlalchemy
+flask-cors
