@@ -47,7 +47,7 @@ def show_get():
     """
     Get information about a specific show.
 
-    Author: Antoine Dierickx
+    Author: Jérémie Dierickx
     """
     pass
 
@@ -57,7 +57,7 @@ def recommendations_get():
     """
     Get recommendations for a specific user.
 
-    Author: Jérémie Mouchet
+    Author: Antoine Mouchet
     """
     pass
 
