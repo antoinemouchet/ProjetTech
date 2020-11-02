@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, DateTime, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, Integer, String, Model, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 
@@ -25,6 +25,24 @@ class User(Base):
 
     def get_id(self):
         return self.id
+        
+
+ 
+# cause each WatchList can contain more than 1 show.
+class ShowList(Model):
+    __tablename__ = 'show_lists'
+			
+    show_id = Column(Integer, ForeignKey('Show.id'), primary_key=True)
+    watchlist_id = Column(Integer, ForeignKey('WatchList.id'), primary_key=True)       
+                
+                                
+class WatchList(Model):
+    __tablename__ = 'watch_lists'
+			
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    # show = Column(Integer, ForeignKey('Show.id'))  -> see ShowList
+    user_id = Column(Integer, ForeignKey('Utilisateur.id'))
+    # status : what is it ? xD
 
 
 Base.metadata.create_all(engine)
