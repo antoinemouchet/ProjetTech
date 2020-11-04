@@ -95,5 +95,3 @@ status: text
 ## Technos
 
 https://kylelogue.github.io/mustard-ui/index.html
-
-https://bootstrapisshit.org
