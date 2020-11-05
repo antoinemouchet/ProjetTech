@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, DateTime, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 
@@ -26,5 +26,24 @@ class User(Base):
     def get_id(self):
         return self.id
 
+
+
+class Show(Base):
+    # Table name
+    __tablename__ = "show"
+
+    # Columns
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String, nullable=False)
+    description = Column(Text, nullable=False)
+    img_path = Column(Text)
+    file_path = Column(Text)
+    tags = Column(Text, nullable=False)
+
+    def get_id(self):
+        return self.id
+
+    def get_name(self):
+        return self.name
 
 Base.metadata.create_all(engine)
