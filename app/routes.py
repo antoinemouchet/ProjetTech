@@ -1,5 +1,7 @@
 from app import app
-from flask import jsonify
+from flask import jsonify, redirect, request
+from app.models import Show
+from app.utils import generate_file_path
 
 
 @app.route('/list/<int:id>', methods=['GET'])
@@ -29,7 +31,28 @@ def show_create():
 
     Author: Antoine Mouchet
     """
-    pass
+    new_show_data = request.json
+
+    # Store image and video in static/img and static/video respectively
+    # Get the file from the request then store it?
+
+    new_show = Show(name=new_show_data["name"], description=new_show_data["desc"], tags=new_show_data["tags"])
+    
+    # Get id and name of show just created
+    new_show_id = new_show.get_id()
+    new_show_name = new_show.get_name()
+
+    # Generate path to files (img + videos to store them) based on show_id
+    path_to_show_img = generate_file_path(new_show_id, new_show_name, new_show_data["img"])
+    path_to_show_vid = generate_file_path(new_show_id, new_show_name, new_show_data["video"], "video")
+
+    # Check that each path exists (therefore each content exists)
+    if path_to_show_img:
+        new_show.img_path = path_to_show_img
+    if path_to_show_vid: 
+        new_show.file_path = path_to_show_img
+    
+    return "sucess"
 
 
 @app.route('/shows/', methods=['GET'])
@@ -39,17 +62,33 @@ def show_all():
 
     Author: Antoine Mouchet
     """
-    pass
+    shows = Show.query.all()
+
+    return jsonify(shows)
 
 
 @app.route('/shows/<int:id>', methods=['GET'])
-def show_get():
+def show_get(show_id):
     """
     Get information about a specific show.
 
-    Author: Jérémie Dierickx
+    Parameters
+    ----------
+    show_id: id of the show of which we want to retrieve the info
+
+    Author: Antoine Mouchet
     """
-    pass
+    show_info = Show.query.filter_by(id=show_id).first()
+    
+    # Show exists
+    if show_info:
+        return jsonify(show_info)
+
+    # Reaction when show doesn't exist
+    else:
+        return redirect("/shows")
+
+
 
 
 @app.route('/recommendations/<int:id>', methods=['GET'])
@@ -57,7 +96,7 @@ def recommendations_get():
     """
     Get recommendations for a specific user.
 
-    Author: Antoine Mouchet
+    Author: Jérémie Dierickx
     """
     pass
 
