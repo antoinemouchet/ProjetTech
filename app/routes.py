@@ -52,6 +52,8 @@ def show_create():
     if path_to_show_vid: 
         new_show.file_path = path_to_show_img
     
+    session.add(new_show)
+    session.commit()
     return "sucess"
 
 
