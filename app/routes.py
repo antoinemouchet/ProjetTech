@@ -1,10 +1,10 @@
-from app.models import *
 from flask_login import login_user, current_user, login_required, logout_user
-from flask import render_template, redirect, url_for, request, flash
-from app.forms import *
-from app import app
+from flask import render_template, redirect, url_for, request, flash, jsonify, request
 
-from flask import jsonify
+from app import app
+from app.models import *
+from app.forms import *
+from app.utils import *
 
 
 @app.route('/list/<int:id>', methods=['GET'])
@@ -147,31 +147,91 @@ def users_get():
     return render_template('register.html', form=form)
 
 
-@app.route('/session/<id>', methods=['GET'])
-def session_sync():
+@app.route('/session/<tag>', methods=['GET'])
+def session_sync(tag):
     """
-    Get information about watch session.
+    Get information about watchparty.
 
     Author: Vincent Higginson
     """
-    pass
+    watchparty = session.query(WatchParty).filter_by(id=tag).first()
+
+    if watchparty == None:
+        return jsonify({
+            "msg": "Couldn't find a watch party."
+        }), 404
+    else:
+        state = "play"
+        if not watchparty.state:
+            state = "pause"
+        return jsonify({
+            "time": watchparty.time,
+            "state": state,
+        })
 
 
-@app.route('/session/<id>', methods=['PATCH'])
-def session_update():
+@app.route('/session/<tag>', methods=['PATCH'])
+def session_update(tag):
     """
-    Update information about a session.
+    Update information about a watchparty.
 
     Author: Vincent Higginson
     """
-    pass
+    watchparty = session.query(WatchParty).filter_by(id=tag).first()
+
+    if watchparty == None:
+        return jsonify({
+            "msg": "Couldn't find a watch party."
+        }), 404
+    else:
+        data = request.json
+        if data["state"] == "pause":
+            data["state"] = False
+        else:
+            data["state"] = True
+        watchparty.time = data["time"]
+        watchparty.state = data["state"]
+        session.commit()
+        return jsonify({
+            "msg": "ok."
+        })
 
 
 @app.route('/session/', methods=['POST'])
 def session_create():
     """
-    Create a new session.
+    Create a new watchparty.
 
     Author: Vincent Higginson
     """
-    pass
+    # Get parameters
+    try:
+        watch_party_type = request.json["type"]
+        given_users = request.json["users"]
+    except KeyError as e:
+        return jsonify({
+            "msg": "KEY=%s manquant. Mauvais JSON." % e
+        })
+    if watch_party_type == "public":
+        watch_party_type = True
+    else:
+        watch_party_type = False
+
+    # Let's create the watch party
+    watch_party = WatchParty(id=get_random_word(), state=False, time=0)
+    session.add(watch_party)
+
+    # Let's define parameters
+    parameters = WatchPartyParameters(id=watch_party.id, type=watch_party_type)
+    session.add(parameters)
+
+    # Create a watch party black list entry
+    # For each given users
+    for user in given_users:
+        entry = WatchPartyBlackList(
+            parameters, parameters=parameters.id, user=user)
+        session.add(entry)
+    session.commit()
+    return jsonify({
+        "id": watch_party.id,
+    })
