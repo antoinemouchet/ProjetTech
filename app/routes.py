@@ -3,7 +3,7 @@ from flask import jsonify, redirect, request
 from app.models import Show, session
 from app.utils import generate_file_path
 from werkzeug.utils import secure_filename
-
+import uuid, os
 
 @app.route('/list/<int:id>', methods=['GET'])
 def watch_list_get():
@@ -42,26 +42,18 @@ def show_create():
         name=new_show_data["name"], desc=new_show_data["desc"],
         tags=new_show_data["tags"])
 
-    # Get id and name of show just created
-    new_show_id = new_show.get_id()
-    new_show_name = new_show.get_name()
-
-    # Generate path to files (img + videos to store them) based on show_id
-    # TODO: we should wait for two files
-    path_to_show_img = generate_file_path(
-        new_show_id, new_show_name, new_show_file["img"])
-    path_to_show_vid = generate_file_path(
-        new_show_id, new_show_name, new_show_file["video"], "video")
+    # Generate random files names for file of the show
+    path_to_show_img = str(uuid.uuid4())
+    path_to_show_video = str(uuid.uuid4())
 
     # Check that each path exists (therefore each content exists)
-    if path_to_show_img:
-        new_show.img = path_to_show_img
-        new_show_file["img"].save(path_to_show_img,
-                                  secure_filename(new_show_file["img"].filename))
-    if path_to_show_vid:
-        new_show.video = path_to_show_vid
-        new_show_file["video"].save(path_to_show_vid,
-                                    secure_filename(new_show_file["video"].filename))
+    if new_show_file["img"]:
+        new_show.img = os.path.join(os.getcwd(), "static", "img", path_to_show_img)
+        new_show_file["img"].save(os.path.join(os.getcwd(), "static", "img", path_to_show_img))
+
+    if new_show_file["video"]:
+        new_show.video = os.path.join(os.getcwd(), "static", "video", path_to_show_video)
+        new_show_file["video"].save(os.path.join(os.getcwd(), "static", "video", path_to_show_video))
 
     session.add(new_show)
     session.commit()
