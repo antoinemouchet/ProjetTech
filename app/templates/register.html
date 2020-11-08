@@ -1,59 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-          integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-    <meta charset="UTF-8">
-    <meta charset="UTF-8">
-    <title>Sign in</title>
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <title>Weebinator - Sign up</title>
 </head>
-<body class="d-flex h-100 justify-content-center align-items-center">
-<div>
-    <div class="row d-flex justify-content-center">
-        <h1 class="text-center w-100">Register Page</h1>
-        <form class="col-4" method="POST" action="/users/" novalidate>
-            {{ form.csrf_token }} <!-- {{ form.hidden_tag() }} -->
-            {% with errors = get_flashed_messages(category_filter=["danger"]) %}
+
+<body>
+    <div>
+        <div>
+            <h1>Register Page</h1>
+            <form method="POST" action="/users/" novalidate>
+                {{ form.csrf_token }}
+                <!-- {{ form.hidden_tag() }} -->
+                {% with errors = get_flashed_messages(category_filter=["danger"]) %}
                 {% if errors %}
-                    <div class="alert-message block-message error">
-                        <ul>
-                            {%- for msg in errors %}
-                                <p style="color:#ff8c00" ;>{{ msg }} </p>
-                            {% endfor -%}
-                        </ul>
-                    </div>
+                <div>
+                    <ul>
+                        {%- for msg in errors %}
+                        <p style="color:#ff8c00">{{ msg }}</p>
+                        {% endfor -%}
+                    </ul>
+                </div>
                 {% endif %}
-            {% endwith %}
-            <div class="form-group">
-                {{ form.username.label }} {{ form.username }}<br>
-                {% if form.username.errors %} {% for message in form.username.errors %}
-                    <small id="emailHelp" class="form-text text-info">{{ message }}</small>
-                {% endfor %}{% endif %}
-            </div>
-            <div class="form-group">
-                {{ form.password.label }} {{ form.password }}
-                {% if form.password.errors %} {% for message in form.password.errors %}
-                    <small id="emailHelp" class="form-text text-info">{{ message }}</small>
-                {% endfor %}{% endif %}
-            </div>
-            <div class="form-group">
-                {{ form.password2.label }} {{ form.password2 }}
-                {% if form.password2.errors %} {% for message in form.password2.errors %}
-                    <small id="emailHelp" class="form-text text-info">{{ message }}</small>
-                {% endfor %}{% endif %}
-            </div>
-            <div class="row d-flex justify-content-center">
-                {{ form.submit(class="btn btn-primary") }}
-            </div>
-        </form>
+                {% endwith %}
+                <div>
+                    {{ form.username.label }} {{ form.username }}<br>
+                    {% if form.username.errors %} {% for message in form.username.errors %}
+                    <small id="emailHelp">{{ message }}</small>
+                    {% endfor %}{% endif %}
+                </div>
+                <div>
+                    {{ form.password.label }} {{ form.password }}
+                    {% if form.password.errors %} {% for message in form.password.errors %}
+                    <small id="emailHelp">{{ message }}</small>
+                    {% endfor %}{% endif %}
+                </div>
+                <div>
+                    {{ form.password2.label }} {{ form.password2 }}
+                    {% if form.password2.errors %} {% for message in form.password2.errors %}
+                    <small id="emailHelp">{{ message }}</small>
+                    {% endfor %}{% endif %}
+                </div>
+                <div>
+                    {{ form.submit(class="") }}
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 </body>
 
 </html>

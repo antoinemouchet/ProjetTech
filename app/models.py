@@ -3,7 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from app import db, login_manager
+from app import login_manager
 from werkzeug.security import generate_password_hash, check_password_hash
 
 engine = create_engine("sqlite:///db.db?check_same_thread=false", echo=True)

@@ -3,7 +3,6 @@ from flask_login import login_user, current_user, login_required, logout_user
 from flask import render_template, redirect, url_for, request, flash
 from app.forms import *
 from app import app
-from config import Config
 
 from flask import jsonify
 
@@ -136,7 +135,7 @@ def users_create():
         return render_template('register.html', form=form)
 
 
-@app.route('/users/', methods=['GET'])
+@app.route('/register/', methods=['GET'])
 def users_get():
     """
     Get all users.

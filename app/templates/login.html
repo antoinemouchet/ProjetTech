@@ -13,14 +13,14 @@
     <title>{% block login %}login{% endblock %}</title>
 </head>
 
-<html class="h-100">
-<body class="d-flex h-100 justify-content-center align-items-center">
+<html>
+<body>
 <div>
-    <div class="row d-flex justify-content-center">
-        <h1 class="text-center w-100">Login Page</h1>
+    <div>
+        <h1>Login Page</h1>
         {% with errors = get_flashed_messages(category_filter=["danger"]) %}
         {% if errors %}
-            <div class="alert-message block-message error">
+            <div>
                 <ul>
                     {%- for msg in errors %}
                         <p style="color:#ff8c00" ;>{{ msg }} </p>
@@ -29,26 +29,26 @@
             </div>
         {% endif %}
     {% endwith %}
-        <form class="col-3" method="POST" action="/login/" novalidate>
+        <form method="POST" action="/login/" novalidate>
             {{ form.csrf_token }} <!-- {{ form.hidden_tag() }} -->
-            <div class="form-group">
+            <div>
                 <br>{{ form.username.label }} {{ form.username }}
                 {% if form.username.errors %} {% for message in form.username.errors %}
-                    <small id="emailHelp" class="form-text text-info">{{ message }}</small>
+                    <small id="emailHelp">{{ message }}</small>
                 {% endfor %}{% endif %}
             </div>
 
-            <div class="form-group">
+            <div>
                 {{ form.password.label }} {{ form.password }}
                 {% if form.password.errors %} {% for message in form.password.errors %}
-                    <small id="emailHelp" class="form-text text-info">{{ message }}</small>
+                    <small id="emailHelp">{{ message }}</small>
                 {% endfor %}{% endif %}
             </div>
-            <div class="row d-flex justify-content-center">
-                {{ form.submit (class="btn btn-primary") }}<br>
+            <div>
+                {{ form.submit (class="") }}<br>
             </div>
             <a href="/register" role="button">
-                <button type="button" class="btn btn-link">register</button>
+                <button type="button">register</button>
             </a>
             {% block content %}{% endblock %}
         </form>
