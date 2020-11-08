@@ -1,6 +1,8 @@
 from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
 
 engine = create_engine("sqlite:///./db.db", echo=True)
 Base = declarative_base()
@@ -47,3 +49,6 @@ class Show(Base):
         return self.name
 
 Base.metadata.create_all(engine)
+
+Session = sessionmaker(engine)
+session = Session()

@@ -1,6 +1,6 @@
 from app import app
 from flask import jsonify, redirect, request
-from app.models import Show
+from app.models import Show, session
 from app.utils import generate_file_path
 
 
@@ -24,7 +24,7 @@ def watch_list_post():
     pass
 
 
-@app.route('/shows/<int:id>', methods=['POST'])
+@app.route('/new_show/', methods=['POST'])
 def show_create():
     """
     Create a new show.
@@ -37,7 +37,7 @@ def show_create():
     # Get the file from the request then store it?
 
     new_show = Show(name=new_show_data["name"], description=new_show_data["desc"], tags=new_show_data["tags"])
-    
+
     # Get id and name of show just created
     new_show_id = new_show.get_id()
     new_show_name = new_show.get_name()
@@ -49,9 +49,9 @@ def show_create():
     # Check that each path exists (therefore each content exists)
     if path_to_show_img:
         new_show.img_path = path_to_show_img
-    if path_to_show_vid: 
+    if path_to_show_vid:
         new_show.file_path = path_to_show_img
-    
+
     session.add(new_show)
     session.commit()
     return "sucess"
@@ -64,8 +64,8 @@ def show_all():
 
     Author: Antoine Mouchet
     """
-    shows = Show.query.all()
-
+    shows = session.query(Show).all()
+    print(shows)
     return jsonify(shows)
 
 
@@ -80,8 +80,8 @@ def show_get(show_id):
 
     Author: Antoine Mouchet
     """
-    show_info = Show.query.filter_by(id=show_id).first()
-    
+    show_info = session.query(Show).filter_by(id=show_id).first()
+
     # Show exists
     if show_info:
         return jsonify(show_info)
