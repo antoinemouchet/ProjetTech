@@ -68,7 +68,7 @@ def recommendations_get():
     pass
 
 
-@app.route('/login/', methods=['POST','GET'])
+@app.route('/login/', methods=['POST', 'GET'])
 def login_post():
     """
     Connect a user.
@@ -84,7 +84,7 @@ def login_post():
                 return redirect(url_for('login_post'))
             else:
                 login_user(user)
-                return redirect(url_for('')) #Jsp ou aller
+                return redirect(url_for(''))  # Jsp ou aller
 
         elif user == None:
             flash('Wrong username', 'danger')
@@ -121,10 +121,7 @@ def users_create():
     user_found = session.query(User).filter_by(pseudo=form.username.data).first()
     # Permert d'avoir tout les utilisateurs de la base de donée
     if form.validate_on_submit():
-        if form.birth_date.data.strftime("%Y/%m/%d") >= datetime.today().strftime("%Y/%m/%d"):
-            flash("You can't be born in the future but nice try ;)", "danger")
-            return render_template("register.html", form=form)
-        elif user_found:
+        if user_found:
             flash("there is already an user called like that", "danger")
             return render_template("register.html", form=form)
         else:
@@ -133,7 +130,7 @@ def users_create():
                             enabled=False)
             db.session.add(new_user)
             db.session.commit()
-            return redirect(url_for('login'))
+            return redirect(url_for('login_post'))
 
     else:
         return render_template('register.html', form=form)
@@ -146,9 +143,9 @@ def users_get():
 
     Author: Sémy Drif
     """
-    form=Register()
+    form = Register()
     users = session.query(User).all()
-    return render_template('register.html',form=form)
+    return render_template('register.html', form=form)
 
 
 @app.route('/session/<id>', methods=['GET'])

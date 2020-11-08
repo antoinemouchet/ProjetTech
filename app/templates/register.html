@@ -17,7 +17,7 @@
 <div>
     <div class="row d-flex justify-content-center">
         <h1 class="text-center w-100">Register Page</h1>
-        <form class="col-4" method="POST" action="/register" novalidate>
+        <form class="col-4" method="POST" action="/users/" novalidate>
             {{ form.csrf_token }} <!-- {{ form.hidden_tag() }} -->
             {% with errors = get_flashed_messages(category_filter=["danger"]) %}
                 {% if errors %}

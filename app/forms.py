@@ -22,7 +22,6 @@ class LoginForm(FlaskForm):
 
 
 class Register(FlaskForm):
-
     username = StringField("Username:",
                            validators=[InputRequired(message="At least 3 characters"),
                                        Length(min=3, message="Username must be a least 3 characters long and max "),
@@ -42,5 +41,3 @@ class Register(FlaskForm):
                                                  message="Can t contains spaces or special characters")])
 
     submit = SubmitField("submit")
-
-

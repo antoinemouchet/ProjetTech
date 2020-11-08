@@ -29,7 +29,7 @@
             </div>
         {% endif %}
     {% endwith %}
-        <form class="col-3" method="POST" action="/" novalidate>
+        <form class="col-3" method="POST" action="/login/" novalidate>
             {{ form.csrf_token }} <!-- {{ form.hidden_tag() }} -->
             <div class="form-group">
                 <br>{{ form.username.label }} {{ form.username }}

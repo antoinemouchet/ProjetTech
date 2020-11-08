@@ -33,11 +33,14 @@ class User(Base):
     def check_password(self, password):
         return check_password_hash(self.password, password)
 
+
 Base.metadata.create_all(engine)
+
 
 @login_manager.user_loader
 def load_user(userid):
     return session.query(User).get(int(userid))
+
 
 Session = sessionmaker(engine)
 session = Session()
