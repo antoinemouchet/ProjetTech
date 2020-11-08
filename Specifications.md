@@ -74,7 +74,7 @@ user_b: foreign key -> Utilisateur.id
 
 ### WatchParty
 
-id: autoincrement int
+id: autoincrement string
 time: float
 state: bool
 
