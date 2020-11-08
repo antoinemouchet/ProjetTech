@@ -1,7 +1,6 @@
 from app import app
 from flask import jsonify, redirect, request
 from app.models import Show, session
-from app.utils import generate_file_path
 from werkzeug.utils import secure_filename
 import uuid, os
 
