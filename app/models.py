@@ -1,6 +1,10 @@
 from sqlalchemy import Boolean, Column, DateTime, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from app import db, login_manager
+from werkzeug.security import generate_password_hash, check_password_hash
 
 engine = create_engine("sqlite:///./db.db", echo=True)
 Base = declarative_base()
@@ -26,5 +30,14 @@ class User(Base):
     def get_id(self):
         return self.id
 
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
 
 Base.metadata.create_all(engine)
+
+@login_manager.user_loader
+def load_user(userid):
+    return session.query(User).get(int(userid))
+
+Session = sessionmaker(engine)
+session = Session()

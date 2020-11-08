@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+<!doctype html>
+<html lang="en">
+<head>
+    <title>TP02</title>
+</head>
+<body>
+{% block content %}
+
+    <main role="main" class="container">
+    <div class="jumbotron">
+    <h1>To Do List</h1>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Done</th>
+            <th>Action</th>
+            <th>Deadline</th>
+        </tr>
+        {% if TaskList|length>0 %}
+            <h6> total : {{ TaskList|length }} </h6>
+            {% for task in TaskList %}
+                {% if task.done %}
+                    <tr>
+                    <td>{{ task.name }}</td>
+                    <th>{{ task.description }}</th>
+                    <th><a href="{{ url_for('state', index=task.id) }}" role="button">
+                        <button type="button" class="btn btn-outline-success">done</button>
+                    </a></th>
+                {% else %}
+                    <td>{{ task.name }}
+                    <th>{{ task.description }}</th>
+                    <td><a href="{{ url_for('state', index=task.id) }}" role="button">
+                        <button type="button" class="btn btn-outline-danger">not done</button>
+                    </a></td></th>
+                {% endif %}
+            <th><a href="{{ url_for('name', index=task.id) }}" role="button">
+                <button type="button" class="btn btn-outline-primary">[EDIT]</button>
+            </a>
+                <a href="{{ url_for('remove', index=task.id) }}" role="button">
+                    <button type="button" class="btn btn-outline-primary">[DELETE]</button>
+                </a></th>
+                <th>
+                {{ task.deadline }}
+                </th>
+            </tr>
+            {% endfor %}
+        {% endif %}
+        </thead>
+    </table>
+{% endblock %}
+</div>
+</main>
+</body>
+</html>

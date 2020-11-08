@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>adminpage</title>
+</head>
+<body>
+{% block content %}
+
+    <main role="main" class="container">
+    <div class="jumbotron">
+    <h1>Admin Page</h1>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Username</th>
+            <th>Name</th>
+            <th>First name</th>
+            <th>Birth date</th>
+            <th>Group</th>
+            <th>Blocked</th>
+            <th># tasks</th>
+        </tr>
+
+        {% for user in users %}
+
+            <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.name }}</td>
+                <td>{{ user.first_name }}</td>
+                <td>{{ user.birth }}</td>
+
+                <td>
+                    {% if user.group.getname() == 'admin' %}
+                        <a href="{{ url_for('role', usr=user.id) }}" role="button">
+                            <button type="button" class="btn btn-outline-success">admin</button>
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('role', usr=user.id) }}" role="button">
+                            <button type="button" class="btn btn-outline-danger">user</button>
+                        </a>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if user.blocked %}
+                        <a href="{{ url_for('status', usr=user.id) }}" role="button">
+                            <button type="button" class="btn btn-outline-success">blocked</button>
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('status', usr=user.id) }}" role="button">
+                            <button type="button" class="btn btn-outline-danger">not blocked</button>
+                        </a>
+                    {% endif %}
+                </td>
+                <td>{{ user.tasks|length }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
+</div>
+</main>
+</body>
+</html>
