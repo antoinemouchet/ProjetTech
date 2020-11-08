@@ -1,6 +1,9 @@
+from flask_login import login_user, current_user, login_required, logout_user
+from flask import render_template, redirect, url_for, request, flash, jsonify, request
+
 from app import app
-from flask import jsonify, request
 from app.models import *
+from app.forms import *
 from app.utils import *
 
 
@@ -64,24 +67,46 @@ def recommendations_get():
     pass
 
 
-@app.route('/login/', methods=['POST'])
+@app.route('/login/', methods=['POST', 'GET'])
 def login_post():
     """
     Connect a user.
 
     Author: Sémy Drif
     """
-    pass
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = session.query(User).filter_by(pseudo=form.username.data).first()
+        if user is not None and check_password_hash(user.password, form.password.data):
+            if user.enabled:
+                flash('You are blocked user', 'danger')
+                return redirect(url_for('login_post'))
+            else:
+                login_user(user)
+                return redirect(url_for(''))  # Jsp ou aller
+
+        elif user == None:
+            flash('Wrong username', 'danger')
+            return redirect(url_for('login_post'))
+        elif not check_password_hash(user.password, form.password.data):
+            flash('Wrong password', 'danger')  # error message plus category
+            return redirect(url_for('login_post'))
+
+
+    else:
+        return render_template('login.html', form=form)
 
 
 @app.route('/login/', methods=['POST'])
+@login_required
 def logout_post():
     """
     Disconnect a user.
 
     Author: Sémy Drif
     """
-    pass
+    logout_user()
+    return redirect(url_for('login_post'))
 
 
 @app.route('/users/', methods=['POST'])
@@ -91,17 +116,35 @@ def users_create():
 
     Author: Sémy Drif
     """
-    pass
+    form = Register()
+    user_found = session.query(User).filter_by(pseudo=form.username.data).first()
+    # Permert d'avoir tout les utilisateurs de la base de donée
+    if form.validate_on_submit():
+        if user_found:
+            flash("there is already an user called like that", "danger")
+            return render_template("register.html", form=form)
+        else:
+
+            new_user = User(pseudo=form.username.data, password=generate_password_hash(form.password.data),
+                            enabled=False)
+            session.add(new_user)
+            session.commit()
+            return redirect(url_for('login_post'))
+
+    else:
+        return render_template('register.html', form=form)
 
 
-@app.route('/users/', methods=['GET'])
+@app.route('/register/', methods=['GET'])
 def users_get():
     """
     Get all users.
 
     Author: Sémy Drif
     """
-    pass
+    form = Register()
+    users = session.query(User).all()
+    return render_template('register.html', form=form)
 
 
 @app.route('/session/<tag>', methods=['GET'])

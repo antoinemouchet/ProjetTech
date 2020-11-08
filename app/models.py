@@ -3,7 +3,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-engine = create_engine("sqlite:///./db.db", echo=True)
+from app import login_manager
+from werkzeug.security import generate_password_hash, check_password_hash
+
+engine = create_engine("sqlite:///db.db?check_same_thread=false", echo=True)
 Base = declarative_base()
 
 
@@ -27,6 +30,9 @@ class User(Base):
     def get_id(self):
         return self.id
 
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
+
 
 class WatchParty(Base):
     __tablename__ = "watchparty"
@@ -49,6 +55,10 @@ class WatchPartyBlackList(Base):
         'watchpartyparameters.id'))
     user = Column(Integer, ForeignKey('users.id'))
 
+
+@login_manager.user_loader
+def load_user(userid):
+    return session.query(User).get(int(userid))
 
 Base.metadata.create_all(engine)
 
