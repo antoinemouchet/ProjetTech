@@ -32,12 +32,14 @@ def show_create():
     Author: Antoine Mouchet
     """
     new_show_data = request.form
+    new_show_file = request.files
 
     # Store image and video in static/img and static/video respectively
     # Get the file from the request then store it?
 
     new_show = Show(
-        name=new_show_data["name"], desc=new_show_data["desc"], tags=new_show_data["tags"])
+        name=new_show_data["name"], desc=new_show_data["desc"],
+        tags=new_show_data["tags"])
 
     # Get id and name of show just created
     new_show_id = new_show.get_id()
@@ -46,9 +48,9 @@ def show_create():
     # Generate path to files (img + videos to store them) based on show_id
     # TODO: we should wait for two files
     path_to_show_img = generate_file_path(
-        new_show_id, new_show_name, new_show_data["img"])
+        new_show_id, new_show_name, new_show_file["img"])
     path_to_show_vid = generate_file_path(
-        new_show_id, new_show_name, new_show_data["video"], "video")
+        new_show_id, new_show_name, new_show_file["video"], "video")
 
     # Check that each path exists (therefore each content exists)
     if path_to_show_img:

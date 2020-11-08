@@ -1,6 +1,7 @@
 import os
 
-def generate_file_path(file_id, file_name, content, file_type="img"):
+
+def generate_file_path(file_id, file_name, content="", file_type="img"):
     """
     Returns a string based on the the file type and name representing the path
     where the path is located
@@ -23,12 +24,11 @@ def generate_file_path(file_id, file_name, content, file_type="img"):
     Author: Antoine Mouchet
     """
     base = os.getcwd()
-    
-    # Chech to make sure there is something in content
-    # Make sure that img and video were uploaded. Otherwise, it is useless to generate a path for them
-    
-    # if content not empty:
-    return os.path.join(base, "app", "static", file_type, file_name, str(file_id))
 
-    # else:
-    # return ""
+    # Chech to make sure there is something in content
+    # Make sure that img and video were uploaded.
+    # Otherwise, it is useless to generate a path for them
+
+    if content:
+        return os.path.join(base, "app", "static",
+                            file_type, file_name, str(file_id))
