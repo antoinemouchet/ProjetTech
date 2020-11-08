@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from app import db, login_manager
 from werkzeug.security import generate_password_hash, check_password_hash
 
-engine = create_engine("sqlite:///./db.db", echo=True)
+engine = create_engine("sqlite:///db.db?check_same_thread=false", echo=True)
 Base = declarative_base()
 
 

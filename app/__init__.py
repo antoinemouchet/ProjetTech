@@ -17,7 +17,6 @@ login_manager.session_protection = "strong"
 
 app.secret_key = b'super secret omg'
 CORS(app)
-db = SQLAlchemy(app)
 static_url_path = "/static"
 app_url = "http://127.0.0.1:5000/"
 

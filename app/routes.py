@@ -1,8 +1,8 @@
+from app.models import *
 from flask_login import login_user, current_user, login_required, logout_user
 from flask import render_template, redirect, url_for, request, flash
 from app.forms import *
 from app import app
-from app.models import *
 from config import Config
 
 from flask import jsonify
@@ -128,8 +128,8 @@ def users_create():
 
             new_user = User(pseudo=form.username.data, password=generate_password_hash(form.password.data),
                             enabled=False)
-            db.session.add(new_user)
-            db.session.commit()
+            session.add(new_user)
+            session.commit()
             return redirect(url_for('login_post'))
 
     else:
