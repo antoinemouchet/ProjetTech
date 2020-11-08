@@ -113,6 +113,7 @@ def recommendations_get(id):
             index = 1
             while index < len(sorted_3_tags):
                 recommendations = recommendations.union(Show.query.filter(Show.tags.ilike(sorted_3_tags[index])).order_by(func.random()).limit(4)); # max 4 for others.
+                index += 1
             return jsonify(recommendations)
                                     
     return redirect('/shows') #user not exist
