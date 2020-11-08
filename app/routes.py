@@ -1,7 +1,8 @@
 # -*- coding: cp1252 -*-
 from app import app
 from flask import jsonify, redirect
-from models import ShowList , WatchList, Show
+from models import ShowList , WatchList, Show, User
+from  sqlalchemy.sql.expression import func
 
 
 @app.route('/list/<int:id>', methods=['GET'])
@@ -13,7 +14,7 @@ def watch_list_get(id):
     """
     watchlist = WatchList.query.filter_by(id=id).first()
     if not watchlist or watchlist.user_id != current_user.id:
-        pass #no access
+        return redirect('/shows') #no access
     else:
         shows = ShowList.query.filter_by(watchlist_id=id).all()
         return jsonify(shows) # [{id:,nom:,description:,img:,file:,tags:,}, ...]
@@ -29,7 +30,7 @@ def watch_list_post(id):
     """
     watchlist = WatchList.query.filter_by(id=id).first()
     if not watchlist or watchlist.user_id != current_user.id:
-        pass #no access
+        return redirect('/shows') #no access
     else:
         data = request.json # {delete:[id1,id2,...], add:[id1,id2,...]}
         delete = data['delete'] # shows to delete from watchlist
@@ -38,13 +39,13 @@ def watch_list_post(id):
             for show_id in delete:
                 show = ShowList.query.filter_by(watchlist_id=id, show_id=show_id).first()
                 if show:
-                    db.session.delete(show)
+                    session.delete(show)
         if add:
             for show_id in add:
                 show = Show.query.filter_by(show_id=show_id).exist()
                 if show:
-                    db.session.add(ShowList(watchlist_id=id, show_id=show_id))
-        db.session.commit()
+                    session.add(ShowList(watchlist_id=id, show_id=show_id))
+        session.commit()
         
         return redirect('/list/%d' % id) 
 
@@ -86,7 +87,7 @@ def recommendations_get(id):
 
     Author: Jérémie Dierickx
     """
-    user = Utilisateur.query.filter_by(id=id).first()
+    user = User.query.filter_by(id=id).first()
     if user:
         tags_frequencies = {}
         user_watchlists = WatchList.query.filter_by(user_id=id).all()
@@ -96,17 +97,25 @@ def recommendations_get(id):
            
             for showlist in watchlist_showlists: #iterate through all watchlist's showlists
                 show = Show.query.filter_by(id=showlist.show_id).first() #get show
-                tag_list = show.tags.split(';')
-               
-                for tag in tag_list:
-                    if tag in tags_frequencies:
-                        tags_frequencies[tag] += 1
-                    else:
-                        tags_frequencies[tag] = 0
-        
+                if show:
+                    tag_list = show.tags.split(';')
+                
+                    for tag in tag_list:
+                        if tag in tags_frequencies:
+                            tags_frequencies[tag] += 1
+                        else:
+                            tags_frequencies[tag] = 0
+                            
         #do something with frequencies
-    else:
-        pass #user not exist
+        if len(tags_frequencies) > 0: 
+            sorted_3_tags = sorted(tags_frequencies.keys(), key=lambda key: tags_frequencies[key])[:4] #maybe needs optimization ?
+            recommendations = Show.query.filter(Show.tags.ilike(sorted_3_tags[0])).order_by(func.random()).limit(10); # max 10 recommendation for the most common tag.
+            index = 1
+            while index < len(sorted_3_tags):
+                recommendations = recommendations.union(Show.query.filter(Show.tags.ilike(sorted_3_tags[index])).order_by(func.random()).limit(4)); # max 4 for others.
+            return jsonify(recommendations)
+                                    
+    return redirect('/shows') #user not exist
 
 
 
