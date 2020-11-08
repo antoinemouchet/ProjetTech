@@ -1,3 +1,4 @@
+# -*- coding: cp1252 -*-
 from flask_login import login_user, current_user, login_required, logout_user
 from flask import render_template, redirect, url_for, request, flash, jsonify, request
 
@@ -92,17 +93,17 @@ def recommendations_get(id):
 
     Author: Jérémie Dierickx
     """
-    user = User.query.filter_by(id=id).first()
+    user = session.query(User).filter_by(id=id).first()
     if user:
         tags_frequencies = {}
-        user_watchlists = WatchList.query.filter_by(user_id=id).all()
+        user_watchlists = session.query(WatchList).filter_by(user_id=id).all()
 
         for watchlist in user_watchlists:  # iterate through all user's watchlists
-            watchlist_showlists = ShowList.query.filter_by(
+            watchlist_showlists = session.query(ShowList).filter_by(
                 watchlist_id=watchlist.id).all()
 
             for showlist in watchlist_showlists:  # iterate through all watchlist's showlists
-                show = Show.query.filter_by(
+                show = session.query(Show).filter_by(
                     id=showlist.show_id).first()  # get show
                 if show:
                     tag_list = show.tags.split(';')
@@ -117,11 +118,11 @@ def recommendations_get(id):
         if len(tags_frequencies) > 0:
             sorted_3_tags = sorted(tags_frequencies.keys(), key=lambda key: tags_frequencies[key])[
                 :4]  # maybe needs optimization ?
-            recommendations = Show.query.filter(Show.tags.ilike(sorted_3_tags[0])).order_by(
+            recommendations = session.query(Show).filter(Show.tags.ilike(sorted_3_tags[0])).order_by(
                 func.random()).limit(10)  # max 10 recommendation for the most common tag.
             index = 1
             while index < len(sorted_3_tags):
-                recommendations = recommendations.union(Show.query.filter(Show.tags.ilike(
+                recommendations = recommendations.union(session.query(Show).filter(Show.tags.ilike(
                     sorted_3_tags[index])).order_by(func.random()).limit(4))  # max 4 for others.
                 index += 1
             return jsonify(recommendations)
