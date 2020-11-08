@@ -2,6 +2,7 @@ from app import app
 from flask import jsonify, redirect, request
 from app.models import Show, session
 from app.utils import generate_file_path
+from werkzeug.utils import secure_filename
 
 
 @app.route('/list/<int:id>', methods=['GET'])
@@ -54,9 +55,13 @@ def show_create():
 
     # Check that each path exists (therefore each content exists)
     if path_to_show_img:
-        new_show.img_path = path_to_show_img
+        new_show.img = path_to_show_img
+        new_show_file["img"].save(path_to_show_img,
+                                  secure_filename(new_show_file["img"].filename))
     if path_to_show_vid:
-        new_show.file_path = path_to_show_img
+        new_show.video = path_to_show_vid
+        new_show_file["video"].save(path_to_show_vid,
+                                    secure_filename(new_show_file["video"].filename))
 
     session.add(new_show)
     session.commit()
