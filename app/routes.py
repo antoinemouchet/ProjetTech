@@ -24,27 +24,31 @@ def watch_list_post():
     pass
 
 
-@app.route('/new_show/', methods=['POST'])
+@app.route('/shows/', methods=['POST'])
 def show_create():
     """
     Create a new show.
 
     Author: Antoine Mouchet
     """
-    new_show_data = request.json
+    new_show_data = request.form
 
     # Store image and video in static/img and static/video respectively
     # Get the file from the request then store it?
 
-    new_show = Show(name=new_show_data["name"], description=new_show_data["desc"], tags=new_show_data["tags"])
+    new_show = Show(
+        name=new_show_data["name"], desc=new_show_data["desc"], tags=new_show_data["tags"])
 
     # Get id and name of show just created
     new_show_id = new_show.get_id()
     new_show_name = new_show.get_name()
 
     # Generate path to files (img + videos to store them) based on show_id
-    path_to_show_img = generate_file_path(new_show_id, new_show_name, new_show_data["img"])
-    path_to_show_vid = generate_file_path(new_show_id, new_show_name, new_show_data["video"], "video")
+    # TODO: we should wait for two files
+    path_to_show_img = generate_file_path(
+        new_show_id, new_show_name, new_show_data["img"])
+    path_to_show_vid = generate_file_path(
+        new_show_id, new_show_name, new_show_data["video"], "video")
 
     # Check that each path exists (therefore each content exists)
     if path_to_show_img:
@@ -54,7 +58,7 @@ def show_create():
 
     session.add(new_show)
     session.commit()
-    return "sucess"
+    return "success"
 
 
 @app.route('/shows/', methods=['GET'])
@@ -65,11 +69,20 @@ def show_all():
     Author: Antoine Mouchet
     """
     shows = session.query(Show).all()
-    print(shows)
-    return jsonify(shows)
+
+    data = []
+    for show in shows:
+        data.append({
+            "name": show.name,
+            "desc": show.desc,
+            "img": show.img,
+            "tags": show.tags
+        })
+
+    return jsonify(data)
 
 
-@app.route('/shows/<int:id>', methods=['GET'])
+@app.route('/shows/<int:show_id>', methods=['GET'])
 def show_get(show_id):
     """
     Get information about a specific show.
@@ -84,13 +97,16 @@ def show_get(show_id):
 
     # Show exists
     if show_info:
-        return jsonify(show_info)
-
+        return jsonify({
+            "name": show_info.name,
+            "desc": show_info.desc,
+            "img": show_info.img,
+            "video": show_info.video,
+            "tags": show_info.tags
+        })
     # Reaction when show doesn't exist
     else:
         return redirect("/shows")
-
-
 
 
 @app.route('/recommendations/<int:id>', methods=['GET'])
