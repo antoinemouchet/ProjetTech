@@ -12,7 +12,7 @@ from app.utils import *
 @app.route('/list/<int:id>', methods=['GET'])
 def watch_list_get(id):
     """
-    Obtain watch list of user with given id.
+    Obtain watch list of user with user id.
 
     Author: Jérémie Dierickx
     """
@@ -28,7 +28,7 @@ def watch_list_get(id):
 @app.route('/list/<int:id>', methods=['POST'])
 def watch_list_post(id):
     """
-    Modify watch list of user with given id.
+    Modify watch list of user with user id.
 
     Author: Jérémie Dierickx
     """
@@ -154,7 +154,6 @@ def login_post():
             flash('Wrong password', 'danger')  # error message plus category
             return redirect(url_for('login_post'))
 
-
     else:
         return render_template('login.html', form=form)
 
@@ -179,7 +178,8 @@ def users_create():
     Author: Sémy Drif
     """
     form = Register()
-    user_found = session.query(User).filter_by(pseudo=form.username.data).first()
+    user_found = session.query(User).filter_by(
+        pseudo=form.username.data).first()
     # Permert d'avoir tout les utilisateurs de la base de donée
     if form.validate_on_submit():
         if user_found:
@@ -198,6 +198,16 @@ def users_create():
 
 
 @app.route('/register/', methods=['GET'])
+def register_form():
+    """
+    Show register form.
+    Author: Sémy Drif
+    """
+    form = Register()
+    return render_template('register.html', form=form)
+
+
+@app.route('/users/', methods=['GET'])
 def users_get():
     """
     Get all users.
@@ -206,7 +216,13 @@ def users_get():
     """
     form = Register()
     users = session.query(User).all()
-    return render_template('register.html', form=form)
+    data = []
+    for u in users:
+        data.append({
+            "id": u.id,
+            "pseudo": u.pseudo,
+        })
+    return jsonify(data)
 
 
 @app.route('/session/<tag>', methods=['GET'])
