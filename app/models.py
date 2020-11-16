@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 
-engine = create_engine("sqlite:///./db.db", echo=True)
+engine = create_engine("sqlite:///db.db?check_same_thread=false", echo=True)
 Base = declarative_base()
 
 
