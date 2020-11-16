@@ -1,4 +1,7 @@
 __pycache__
 *.mp4
 *.db
+.vscode
+img
+video
 .idea

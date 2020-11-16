@@ -1,8 +1,11 @@
 from flask_login import login_user, current_user, login_required, logout_user
 from flask import render_template, redirect, url_for, request, flash, jsonify, request
 from jinja2 import Template, Environment, PackageLoader, select_autoescape
+from flask import jsonify, redirect, request
 
 from sqlalchemy.sql.expression import func
+
+import uuid, os
 
 from app import app
 from app.models import *
@@ -39,7 +42,6 @@ def footer():
     footer = env.get_template("footer.html")
 
     return footer.render()
-
 
 @app.route('/list/<int:id>', methods=['GET'])
 def watch_list_get(id):
@@ -87,14 +89,42 @@ def watch_list_post(id):
         return redirect('/list/%d' % id)
 
 
-@app.route('/shows/<int:id>', methods=['POST'])
+@app.route('/shows/', methods=['POST'])
 def show_create():
     """
     Create a new show.
 
     Author: Antoine Mouchet
     """
-    pass
+    new_show_data = request.form
+    new_show_file = request.files
+
+    # Store image and video in static/img and static/video respectively
+    # Get the file from the request then store it?
+
+    new_show = Show(
+        name=new_show_data["name"], desc=new_show_data["desc"],
+        tags=new_show_data["tags"])
+
+    # Generate random files names for file of the show
+    path_to_show_img = str(uuid.uuid4())
+    path_to_show_video = str(uuid.uuid4())
+
+    img_extension = new_show_file["img"].filename.split('.')[1]
+    video_extension = new_show_file["video"].filename.split('.')[1]
+
+    # Check that each path exists (therefore each content exists)
+    if new_show_file["img"]:
+        new_show.img = os.path.join(os.getcwd(), "static", "img", path_to_show_img + "." + img_extension)
+        new_show_file["img"].save(os.path.join(os.getcwd(), "static", "img", path_to_show_img + "." +  img_extension))
+
+    if new_show_file["video"]:
+        new_show.video = os.path.join(os.getcwd(), "static", "video", path_to_show_video + "." + video_extension)
+        new_show_file["video"].save(os.path.join(os.getcwd(), "static", "video", path_to_show_video + "." +  video_extension))
+
+    session.add(new_show)
+    session.commit()
+    return "success"
 
 
 @app.route('/shows/', methods=['GET'])
@@ -104,17 +134,39 @@ def show_all():
 
     Author: Antoine Mouchet
     """
-    pass
+    shows = session.query(Show).all()
 
+    data = []
+    for show in shows:
+        data.append({
+            "name": show.name,
+            "desc": show.desc,
+            "img": show.img,
+            "tags": show.tags
+        })
+
+    return jsonify(data)
 
 @app.route('/shows/<int:id>', methods=['GET'])
 def show_get(id):
     """
     Get information about a specific show.
-
     Author: Antoine Mouchet
     """
-    pass
+    show_info = session.query(Show).filter_by(id=show_id).first()
+
+    # Show exists
+    if show_info:
+        return jsonify({
+            "name": show_info.name,
+            "desc": show_info.desc,
+            "img": show_info.img,
+            "video": show_info.video,
+            "tags": show_info.tags
+        })
+    # Reaction when show doesn't exist
+    else:
+        return redirect("/shows")
 
 
 @app.route('/recommendations/<int:id>', methods=['GET'])
