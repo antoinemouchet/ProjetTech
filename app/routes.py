@@ -427,7 +427,13 @@ def session_create():
     })
 
 
-@ app.route('/watch/<tag>', methods=['GET'])
+@app.route('/watch/<tag>', methods=['GET'])
 def watch(tag):
     form = env.get_template('watch.html')
     return header("Watch Party") + form.render(watch_party_tag=tag) + footer()
+
+
+@app.route('/watch-party/', methods=['GET'])
+def watch_party_form():
+    form = env.get_template('watch-party.html')
+    return header("Find a Watch Party") + form.render() + footer()
