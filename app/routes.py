@@ -1,5 +1,6 @@
 from flask_login import login_user, current_user, login_required, logout_user
 from flask import render_template, redirect, url_for, request, flash, jsonify, request
+from jinja2 import Template, Environment, PackageLoader, select_autoescape
 
 from sqlalchemy.sql.expression import func
 
@@ -7,6 +8,29 @@ from app import app
 from app.models import *
 from app.forms import *
 from app.utils import *
+
+env = Environment(
+    loader=PackageLoader("app", "templates"),
+    autoescape=select_autoescape(["html"])
+)
+
+
+def header(page_name):
+    """
+    Render heading.
+    """
+    header = env.get_template("header.html")
+
+    return header.render(page_name=page_name, current_user=current_user)
+
+
+def footer():
+    """
+    Render footer.
+    """
+    footer = env.get_template("footer.html")
+
+    return footer.render()
 
 
 @app.route('/list/<int:id>', methods=['GET'])
@@ -154,7 +178,6 @@ def login_post():
             flash('Wrong password', 'danger')  # error message plus category
             return redirect(url_for('login_post'))
 
-
     else:
         return render_template('login.html', form=form)
 
@@ -179,7 +202,8 @@ def users_create():
     Author: Sémy Drif
     """
     form = Register()
-    user_found = session.query(User).filter_by(pseudo=form.username.data).first()
+    user_found = session.query(User).filter_by(
+        pseudo=form.username.data).first()
     # Permert d'avoir tout les utilisateurs de la base de donée
     if form.validate_on_submit():
         if user_found:
@@ -223,16 +247,16 @@ def session_sync(tag):
             "msg": "Couldn't find a watch party."
         }), 404
     else:
-        state = "play"
+        state = "played"
         if not watchparty.state:
-            state = "pause"
+            state = "paused"
         return jsonify({
             "time": watchparty.time,
             "state": state,
         })
 
 
-@app.route('/session/<tag>', methods=['PATCH'])
+@app.route('/session/<tag>/', methods=['PATCH'])
 def session_update(tag):
     """
     Update information about a watchparty.
@@ -247,12 +271,14 @@ def session_update(tag):
         }), 404
     else:
         data = request.json
-        if data["state"] == "pause":
+        if data["state"] == "paused":
             data["state"] = False
         else:
             data["state"] = True
         watchparty.time = data["time"]
         watchparty.state = data["state"]
+        print(data["time"])
+        print(data["state"])
         session.commit()
         return jsonify({
             "msg": "ok."
@@ -297,3 +323,9 @@ def session_create():
     return jsonify({
         "id": watch_party.id,
     })
+
+
+@app.route('/watch/<tag>', methods=['GET'])
+def watch(tag):
+    form = env.get_template('watch.html')
+    return header("Watch Party") + form.render(watch_party_tag = tag) + footer()
