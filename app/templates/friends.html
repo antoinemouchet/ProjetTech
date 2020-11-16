@@ -1,0 +1,27 @@
+{{ header }}
+
+<script>
+    let userId = "{{ user_id }}"
+</script>
+
+<div class="container">
+    <h3>My friends</h3>
+    <p>Add a friend: <input type="text" id="user-name">
+        <button class="btn btn-info" onclick="launchAdd()">Add</button>
+        <span id="error"></span>
+    </p>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Pseudo</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="list-friends">
+        </tbody>
+    </table>
+</div>
+
+<script src="/static/friends.js"></script>
+
+{{ footer }}

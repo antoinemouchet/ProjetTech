@@ -15,6 +15,14 @@ env = Environment(
 )
 
 
+@login_manager.unauthorized_handler
+def unauthorized():
+    """
+    A not connected user tries to use login_required view.
+    """
+    return redirect('/login/', 302)
+
+
 def header(page_name):
     """
     Render heading.
@@ -154,22 +162,19 @@ def recommendations_get(id):
 
 
 @app.route('/login/', methods=['POST', 'GET'])
-def login_post():
+def login():
     """
     Connect a user.
 
     Author: Sémy Drif
     """
+    print("Salut")
     form = LoginForm()
     if form.validate_on_submit():
         user = session.query(User).filter_by(pseudo=form.username.data).first()
         if user is not None and check_password_hash(user.password, form.password.data):
-            if user.enabled:
-                flash('You are blocked user', 'danger')
-                return redirect(url_for('login_post'))
-            else:
-                login_user(user)
-                return redirect(url_for(''))  # Jsp ou aller
+            login_user(user)
+            return redirect('/friends/', 302)
 
         elif user == None:
             flash('Wrong username', 'danger')
@@ -233,7 +238,104 @@ def users_get():
     return render_template('register.html', form=form)
 
 
-@app.route('/session/<tag>', methods=['GET'])
+@app.route('/friends/<int:tag>', methods=["GET"])
+def friends_get(tag):
+    """
+    Get all friends of user
+
+    Author: Vincent Higginson
+    """
+    friends_by_a = session.query(FriendShip).filter_by(user_a=tag)
+    friends_by_b = session.query(FriendShip).filter_by(user_b=tag)
+
+    friends_id = []
+
+    for friend in friends_by_a:
+        if friend.user_b not in friends_id:
+            friends_id.append({
+                "id": friend.user_b,
+                "pseudo": session.query(User).filter_by(id=friend.user_b).first().pseudo
+            })
+
+    for friend in friends_by_b:
+        if friend.user_a not in friends_id:
+            friends_id.append({
+                "id": friend.user_a,
+                "pseudo": session.query(User).filter_by(id=friend.user_a).first().pseudo
+            })
+    return jsonify({
+        "friends": friends_id
+    })
+
+
+@app.route('/friends/<int:tag>', methods=["DELETE"])
+def friends_delete(tag):
+    """
+    Delete a specific friends for a user.
+
+    Author: Vincent Higginson
+    """
+    # Get user to remove
+    friend = request.json['friend']
+    # Get related friendship
+    friends_by_a = session.query(FriendShip).filter_by(
+        user_a=tag, user_b=friend).first()
+    if friends_by_a != None:
+        session.delete(friends_by_a)
+    friends_by_b = session.query(FriendShip).filter_by(
+        user_a=friend, user_b=tag).first()
+    if friends_by_b != None:
+        session.delete(friends_by_b)
+    session.commit()
+
+    return jsonify({
+        "msg": "okay"
+    })
+
+
+@app.route('/friends/<int:tag>', methods=["POST"])
+def friends_add(tag):
+    """
+    Add a new friend to a user.
+
+    Author: Vincent Higginson
+    """
+    # Get user with this pseudo
+    user_id = session.query(User).filter_by(
+        pseudo=request.json['friend']).first()
+    if user_id == None:
+        return jsonify({
+            "msg": "do not exist"
+        })
+    user_id = user_id.id
+    # Check if a friendship of this type doesn't exist
+    f_by_a = session.query(FriendShip).filter_by(
+        user_a=tag, user_b=user_id).first()
+    f_by_b = session.query(FriendShip).filter_by(
+        user_b=tag, user_a=user_id).first()
+    if f_by_a == None and f_by_b == None:
+        # Create friendship
+        friend_ship = FriendShip(user_a=tag, user_b=user_id)
+        session.add(friend_ship)
+        session.commit()
+
+        return jsonify({
+            "msg": "okay"
+        })
+    else:
+        return jsonify({
+            "msg": "already friends"
+        })
+
+
+@ app.route('/friends/', methods=['GET'])
+@ login_required
+def friends_form():
+    friends = env.get_template('friends.html')
+    return header("My Friends") + friends.render(user_id=current_user.get_id()) + footer()
+
+
+@ app.route('/session/<tag>', methods=['GET'])
 def session_sync(tag):
     """
     Get information about watchparty.
@@ -256,7 +358,7 @@ def session_sync(tag):
         })
 
 
-@app.route('/session/<tag>/', methods=['PATCH'])
+@ app.route('/session/<tag>/', methods=['PATCH'])
 def session_update(tag):
     """
     Update information about a watchparty.
@@ -285,7 +387,7 @@ def session_update(tag):
         })
 
 
-@app.route('/session/', methods=['POST'])
+@ app.route('/session/', methods=['POST'])
 def session_create():
     """
     Create a new watchparty.
@@ -325,7 +427,7 @@ def session_create():
     })
 
 
-@app.route('/watch/<tag>', methods=['GET'])
+@ app.route('/watch/<tag>', methods=['GET'])
 def watch(tag):
     form = env.get_template('watch.html')
-    return header("Watch Party") + form.render(watch_party_tag = tag) + footer()
+    return header("Watch Party") + form.render(watch_party_tag=tag) + footer()
