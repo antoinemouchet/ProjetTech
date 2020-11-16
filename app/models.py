@@ -60,6 +60,7 @@ class WatchPartyBlackList(Base):
 def load_user(userid):
     return session.query(User).get(int(userid))
 
+
 class Show(Base):
     # Table name
     __tablename__ = "show"
@@ -88,13 +89,20 @@ class WatchList(Base):
     # status : what is it ? xD
 
 
-# cause each WatchList can contain more than 1 show.
 class ShowList(Base):
     __tablename__ = 'showlists'
 
     show_id = Column(Integer, ForeignKey('show.id'), primary_key=True)
     watchlist_id = Column(Integer, ForeignKey(
         'watchlists.id'), primary_key=True)
+
+
+class FriendShip(Base):
+    __tablename__ = 'friendship'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_a = Column(Integer, ForeignKey('users.id'))
+    user_b = Column(Integer, ForeignKey('users.id'))
 
 
 Base.metadata.create_all(engine)
