@@ -61,25 +61,6 @@ def load_user(userid):
     return session.query(User).get(int(userid))
 
 
-class Show(Base):
-    # Table name
-    __tablename__ = "show"
-
-    # Columns
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False)
-    desc = Column(Text, nullable=False)
-    img = Column(Text)
-    video = Column(Text)
-    tags = Column(Text, nullable=False)
-
-    def get_id(self):
-        return self.id
-
-    def get_name(self):
-        return self.name
-
-
 class WatchList(Base):
     __tablename__ = 'watchlists'
 
