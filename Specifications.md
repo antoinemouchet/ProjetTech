@@ -21,27 +21,31 @@
 - PATCH `/session/<token>` modifier état d'une session - Vincent
 - POST  `/session/`        créer une session           - Vincent
 
+- GET   `/friends/<id>`    obtenir les amis d'un user  - Vincent
+- POST  `/friends/<id>`    définir les amis d'un user  - Vincent
+
 ## Frontend
 
-- Connection
-- Création de compte
-- Ajouter un show
+- Connection                                                         - Sémy
+- Création de compte                                                 - Sémy 
+
+- Ajouter un show                                                    - Antoine
 	- Nom
 	- Description
 	- Photo
 	- Fichier (.mp4, .webm)
-- Mes séries (Afficher ma liste et la modifier)
+- Mes séries (Afficher ma liste et la modifier)                      - Jérémie
 	- Un tableau avec logo/nom et lien pour créer une watch party
 	- Supprimer série
 	- Mettre à vu/en cours
 	- Champs pour ajouter une série
-- Détail sur série
-- Listes d'amis
+- Détail sur série                                                   - Antoine
+- Listes d'amis                                                      - Vincent
 	- Un tableau avec pseudo et lien pour comparer les listes
 	- Supprimer ami
 	- Champs pour ajouter un ami
-- Comparer deux listes d'utilisateurs
-- Salon pour visionner vidéo                                          - Vincent
+- Comparer deux listes d'utilisateurs                                - Jérémie
+- Salon pour visionner vidéo                                         - Vincent
 	- Menu d'outils (pause/play/aller à)
 	
 ## Base de données
@@ -70,7 +74,7 @@ user_b: foreign key -> Utilisateur.id
 
 ### WatchParty
 
-id: autoincrement int
+id: autoincrement string
 time: float
 state: bool
 
