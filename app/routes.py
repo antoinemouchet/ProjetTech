@@ -301,13 +301,16 @@ def friends_add(tag):
     Author: Vincent Higginson
     """
     # Get user with this pseudo
-    user_id = session.query(User).filter_by(
-        pseudo=request.json['friend']).first()
-    if user_id == None:
+    user = session.query(User).filter_by(pseudo=request.json['friend']).first()
+    if user == None:
         return jsonify({
-            "msg": "do not exist"
+            "msg": "Does not exist."
         })
-    user_id = user_id.id
+    if user.id == current_user.get_id():
+        return jsonify({
+            "msg": "You cannot be friend with yourself."
+        })
+    user_id = user.id
     # Check if a friendship of this type doesn't exist
     f_by_a = session.query(FriendShip).filter_by(
         user_a=tag, user_b=user_id).first()

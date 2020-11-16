@@ -28,11 +28,7 @@ async function addFriend(friendId) {
         })
     });
     let json = await response.json();
-    if (json.msg == "do not exist") {
-        document.getElementById('error').innerText = "This user do not exist";
-    } else {
-        document.getElementById('error').innerText = "";
-    }
+    document.getElementById('error').innerText = json.msg;
     buildStuff();
 }
 
