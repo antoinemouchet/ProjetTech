@@ -156,7 +156,7 @@ def login_post():
 
 
     else:
-        return render_template('index.html', form=form)
+        return render_template('login.html', form=form)
 
 
 @app.route('/login/', methods=['POST'])
