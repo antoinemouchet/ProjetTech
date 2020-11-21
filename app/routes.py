@@ -18,15 +18,19 @@ def watch_list_get(id):
     Author: Jérémie Dierickx
     """
     watchlist = session.query(WatchList).filter_by(id=id).first()
-    if not watchlist or watchlist.user_id != current_user.id:
-        return redirect('/shows')  # no access
+    if not watchlist:
+        return jsonify({'error': 'watchlist not found.'})  # watchlist not exist
     else:
         shows = session.query(ShowList).filter_by(watchlist_id=id).all()
         # [{id:,nom:,description:,img:,file:,tags:,}, ...]
-        return jsonify(shows)
+        showsList = []
+        for show in show:
+            showsList.append({'id':show.id, 'name':show.name, 'desc':show.desc,'img':show.img,'video':show.video,'tags':show.tags})
+        return jsonify({'data' :showsList})
 
 
-@app.route('/list/<int:id>', methods=['POST'])
+@app.route('/list/<int:id>', methods=['POST']) 
+@login_required
 def watch_list_post(id):
     """
     Modify watch list of user with given id.
@@ -34,9 +38,7 @@ def watch_list_post(id):
     Author: Jérémie Dierickx
     """
     watchlist = session.query(WatchList).filter_by(id=id).first()
-    if not watchlist or watchlist.user_id != current_user.id:
-        return redirect('/shows')  # no access
-    else:
+    if watchlist and watchlist.user_id == current_user.id:
         data = request.json  # {delete:[id1,id2,...], add:[id1,id2,...]}
         delete = data['delete']  # shows to delete from watchlist
         add = data['add']  # shows to add to watchlist
@@ -53,7 +55,31 @@ def watch_list_post(id):
                     session.add(ShowList(watchlist_id=id, show_id=show_id))
         session.commit()
 
-        return redirect('/list/%d' % id)
+    return redirect('/list/%d' % id)
+
+@app.route('/list/', methods=['GET'])
+def watch_list_main_get():
+    """
+    Main page for watch lists.
+
+    Author: Jérémie Dierickx
+    """
+    return render_template('watchlists.html')
+
+@app.route('/list/', methods=['POST'])
+@login_required
+def watch_list_main_post():
+    """
+    Create new watch list.
+
+    Author: Jérémie Dierickx
+    """
+    newWatchList = WatchList(user_id = current_user.id)
+    session.add(newWatchList)
+    session.commit()
+    return redirect('/list/%d' % newWatchList.id)
+
+
 
 
 @app.route('/shows/<int:id>', methods=['POST'])
@@ -125,7 +151,10 @@ def recommendations_get(id):
                 recommendations = recommendations.union(session.query(Show).filter(Show.tags.ilike(
                     sorted_3_tags[index])).order_by(func.random()).limit(4))  # max 4 for others.
                 index += 1
-            return jsonify(recommendations)
+            recommendationsList = []
+            for show in recommendations:
+                recommendationsList.append({'id':show.id, 'name':show.name, 'desc':show.desc,'img':show.img,'video':show.video,'tags':show.tags})
+            return jsonify(recommendationsList)
 
     return redirect('/shows')  # user not exist
 
