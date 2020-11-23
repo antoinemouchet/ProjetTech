@@ -133,8 +133,6 @@ def show_create():
         return header("Add a show") + newShow.render() + footer()
 
 
-
-
 @app.route('/shows/', methods=['GET'])
 def show_all():
     """
@@ -145,7 +143,6 @@ def show_all():
     shows = session.query(Show).all()
 
     data = []
-    i = 0
 
     for show in shows:
         data.append({
@@ -153,19 +150,17 @@ def show_all():
             "desc": show.desc,
             "img": show.img,
             "tags": show.tags,
-            "id": i,
+            "id": show.id,
         })
-
-        i += 1
 
     return jsonify(data)
 
 @app.route('/show-list/', methods=["GET"])
-def display_show():
+def display_shows():
     shows = env.get_template('shows.html')
     return header("Shows") + shows.render() + footer()
 
-@app.route('/shows/<int:show_id>', methods=['GET'])
+@app.route('/show/<int:show_id>', methods=['GET'])
 def show_get(show_id):
     """
     Get information about a specific show.
@@ -184,8 +179,12 @@ def show_get(show_id):
         })
     # Reaction when show doesn't exist
     else:
-        return redirect("/shows")
+        return redirect("/shows/")
 
+@app.route('/show-detail/<int:show_id>', methods=["GET"])
+def show_view(show_id):
+    show = env.get_template('show-detail.html')
+    return header("Details") + show.render(show=show_id) + footer()
 
 @app.route('/recommendations/<int:id>', methods=['GET'])
 def recommendations_get(id):

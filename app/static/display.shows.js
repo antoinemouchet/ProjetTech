@@ -42,7 +42,7 @@ async function buildPage() {
         col4.className = "col-sm";
 
         let a = document.createElement("a");
-        a.href = "/shows/" + i;
+        a.href = "/show-detail/" + show["id"];
 
         let detail = document.createElement("button");
         detail.className = "btn btn-primary";
