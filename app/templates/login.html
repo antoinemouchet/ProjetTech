@@ -16,14 +16,21 @@
 
 <body>
     <div class="container">
-        <h1> Login here</h1>
+        <h1>Login here</h1>
         <form method="POST" action="/login/" novalidate>
+            {% with errors = get_flashed_messages(category_filter=["danger"]) %}
+            {% if errors %}
+                {%- for msg in errors %}
+                <p style="color:#ff8c00">{{ msg }} </p>
+                {% endfor -%}
+            {% endif %}
+            {% endwith %}
             {{ form.csrf_token }}
             <div>
                 {{ form.username.label }}
                 <br>{{ form.username }}
                 {% if form.username.errors %} {% for message in form.username.errors %}
-                <small id="emailHelp">{{ message }}</small>
+                <p>{{ message }}</p>
                 {% endfor %}{% endif %}
             </div>
 
@@ -31,25 +38,16 @@
                 {{ form.password.label }}
                 <br> {{ form.password }}
                 {% if form.password.errors %} {% for message in form.password.errors %}
-                <small id="emailHelp">{{ message }}</small>
+                <p>{{ message }}</p>
                 {% endfor %}{% endif %}
             </div>
             <br>
             <div>
                 {{ form.submit (class="btn btn-primary") }}
                 <a href="/register" role="button" class="register">
-                    <button type="button" class="btn btn-primary">register</button>
+                    <button type="button" class="btn btn-primary">Register</button>
                 </a>
             </div>
-            {% with errors = get_flashed_messages(category_filter=["danger"]) %}
-            {% if errors %}
-            <div class="container error">
-                {%- for msg in errors %}
-                <p style="color:#ff8c00">{{ msg }} </p>
-                {% endfor -%}
-            </div>
-            {% endif %}
-            {% endwith %}
         </form>
     </div>
 

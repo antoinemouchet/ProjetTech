@@ -230,10 +230,10 @@ def login():
 
         elif user == None:
             flash('Wrong username', 'danger')
-            return redirect(url_for('login_post'))
+            return redirect('/login/', 302)
         elif not check_password_hash(user.password, form.password.data):
             flash('Wrong password', 'danger')  # error message plus category
-            return redirect(url_for('login_post'))
+            return redirect('/login/', 302)
 
     else:
         return render_template('login.html', form=form)
@@ -264,7 +264,7 @@ def users_create():
     # Permert d'avoir tout les utilisateurs de la base de donée
     if form.validate_on_submit():
         if user_found:
-            flash("there is already an user called like that", "danger")
+            flash("This pseudo is already used.", "danger")
             return render_template("register.html", form=form)
         else:
 
@@ -272,7 +272,7 @@ def users_create():
                             enabled=False)
             session.add(new_user)
             session.commit()
-            return redirect(url_for('login_post'))
+            return redirect('/login/', 302)
 
     else:
         return render_template('register.html', form=form)

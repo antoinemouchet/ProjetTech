@@ -105,25 +105,6 @@ class FriendShip(Base):
     user_b = Column(Integer, ForeignKey('users.id'))
 
 
-class Show(Base):
-    # Table name
-    __tablename__ = "show"
-
-    # Columns
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False)
-    desc = Column(Text, nullable=False)
-    img = Column(Text)
-    video = Column(Text)
-    tags = Column(Text, nullable=False)
-
-    def get_id(self):
-        return self.id
-
-    def get_name(self):
-        return self.name
-
-
 Base.metadata.create_all(engine)
 
 Session = sessionmaker(engine)

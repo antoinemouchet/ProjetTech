@@ -20,32 +20,30 @@
             <!-- {{ form.hidden_tag() }} -->
             {% with errors = get_flashed_messages(category_filter=["danger"]) %}
             {% if errors %}
-            <div class="container error">
                 {%- for msg in errors %}
                 <p style="color:#ff8c00">{{ msg }}</p>
                 {% endfor -%}
-            </div>
             {% endif %}
             {% endwith %}
             <div>
                 {{ form.username.label }}
                 <br>{{ form.username }}<br>
                 {% if form.username.errors %} {% for message in form.username.errors %}
-                <small id="emailHelp">{{ message }}</small>
+                <p>{{ message }}</p>
                 {% endfor %}{% endif %}
             </div>
             <div>
                 {{ form.password.label }}
                 <br>{{ form.password }}
                 {% if form.password.errors %} {% for message in form.password.errors %}
-                <small id="emailHelp">{{ message }}</small>
+                <p>{{ message }}</p>
                 {% endfor %}{% endif %}
             </div>
             <div>
                 {{ form.password2.label }}
                 <br>{{ form.password2 }}
                 {% if form.password2.errors %} {% for message in form.password2.errors %}
-                <small id="emailHelp">{{ message }}</small>
+                <p>{{ message }}</p>
                 {% endfor %}{% endif %}
             </div>
             <div>
