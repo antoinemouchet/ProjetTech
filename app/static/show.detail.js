@@ -33,7 +33,7 @@ async function buildPage() {
     row2.className = "row";
 
     let imgCol = document.createElement("div");
-    imgCol.className = "col-sm";
+    imgCol.className = "col-4";
     let img = document.createElement("img");
     img.src = "/" + show["img"];
     img.width = 256;
@@ -42,34 +42,14 @@ async function buildPage() {
 
     // Create a second colum
     let descCol = document.createElement("div");
-    imgCol.className = "col-sm";
+    descCol.className = "col-8";
     
-    // Inner container
-    let innerCont = document.createElement("div");
-    innerCont.className = "container";
-
-    // Row 1 is description
-    let iRow1 = document.createElement("div");
-    iRow1.className = "row";
     let desc = document.createElement("p");
-    desc.textContent = show["desc"];
+    desc.innerHTML = "Description: " + show["desc"] + "<br><br>Tags: " + show["tags"];
+    desc.style.textAlign = "left";
 
-    iRow1.appendChild(desc);
-
-    // Row 2 is tags
-    let iRow2 = document.createElement("div");
-    iRow2.className = "row";
-    let tags = document.createElement("p");
-    tags.textContent = show["tags"];
-
-    iRow2.appendChild(tags);
-
-    // Add rows to inner container
-    innerCont.appendChild(iRow1);
-    innerCont.appendChild(iRow2);
-
-    // Add container to column
-    descCol.appendChild(innerCont);
+    // Add description to column
+    descCol.appendChild(desc);
 
     // Add columns to outermost row
     row2.appendChild(imgCol);
@@ -77,5 +57,6 @@ async function buildPage() {
 
     // Add rows to page
     details.appendChild(row1);
+    details.appendChild(document.createElement("hr"));
     details.appendChild(row2);
 }

@@ -111,15 +111,14 @@ def show_create():
         path_to_show_img = str(uuid.uuid4())
         path_to_show_video = str(uuid.uuid4())
 
-        img_extension = new_show_file["img"].filename.split('.')[1]
-        video_extension = new_show_file["video"].filename.split('.')[1]
-
         # Check that each path exists (therefore each content exists)
         if new_show_file["img"]:
+            img_extension = new_show_file["img"].filename.split('.')[1]
             new_show.img = os.path.join( "static", "img", path_to_show_img + "." + img_extension)
             new_show_file["img"].save(os.path.join("static", "img", path_to_show_img + "." +  img_extension))
 
         if new_show_file["video"]:
+            video_extension = new_show_file["video"].filename.split('.')[1]
             new_show.video = os.path.join("static", "video", path_to_show_video + "." + video_extension)
             new_show_file["video"].save(os.path.join("static", "video", path_to_show_video + "." +  video_extension))
 
