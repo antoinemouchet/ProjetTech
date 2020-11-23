@@ -1,0 +1,54 @@
+{{ header }}
+
+    <div class="container">
+        <h1 style="text-align: center;">Add a new video</h1>
+
+        <form action="/new-show/" method="POST" class="show-form" enctype="multipart/form-data" id="myForm">
+            <div class="form-group row">
+                <label for="inputTitle" class="col-sm-2 col-form-label">Title</label>
+                <input type="text" name="name" placeholder="Enter title of the video here" class="form-control col-sm-10" id="inputTitle">
+            </div>
+            <div class="form-group row">
+                <label for="inputDesc" class="col-sm-2 col-form-label">Description</label>
+                <textarea name="desc" placeholder="Enter description of video here" class="form-control col-sm-10" id="inputDesc"></textarea>
+            </div>
+            <div class="form-group row">
+                <label for="inputTags" class="col-sm-2 col-form-label">Tags</label>
+                <input type="text" name="tags" placeholder="Enter tags of video here" class="form-control col-sm-10" id="inputTags">
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-12">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text" id="inputGroupFileAddon01">Image</span>
+                        </div>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01" name="img">
+                            <label class="custom-file-label" for="inputGroupFile01">Choose image</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-12">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text" id="inputGroupFileAddon01">Video</span>
+                        </div>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01" name="video">
+                            <label class="custom-file-label" for="inputGroupFile01">Choose video file</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-12">
+                    <button type="submit" class="btn btn-primary btn-block" id="submit">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    
+{{ footer }}
