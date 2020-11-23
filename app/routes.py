@@ -89,7 +89,7 @@ def watch_list_post(id):
         return redirect('/list/%d' % id)
 
 
-@app.route('/newShow/', methods=['GET', 'POST'])
+@app.route('/new-show/', methods=['GET', 'POST'])
 def show_create():
     """
     Create a new show.
@@ -129,7 +129,7 @@ def show_create():
         return redirect("/show-list/")
 
     else:
-        newShow = env.get_template('showForm.html')
+        newShow = env.get_template('show-form.html')
         return header("Add a show") + newShow.render() + footer()
 
 
@@ -165,8 +165,8 @@ def display_show():
     shows = env.get_template('shows.html')
     return header("Shows") + shows.render() + footer()
 
-@app.route('/shows/<int:id>', methods=['GET'])
-def show_get(id):
+@app.route('/shows/<int:show_id>', methods=['GET'])
+def show_get(show_id):
     """
     Get information about a specific show.
     Author: Antoine Mouchet

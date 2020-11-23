@@ -23,7 +23,8 @@ async function buildPage() {
         let col1 = document.createElement("div");
         col1.className = "col-sm";
         let img = document.createElement("img");
-        img.src = "./static/img/" + show["img"];
+        img.src = "/" + show["img"];
+        img.width = 128;
         col1.appendChild(img);
 
         // Second column is title
@@ -41,7 +42,7 @@ async function buildPage() {
         col4.className = "col-sm";
 
         let a = document.createElement("a");
-        a.href = "shows/" + i;
+        a.href = "/shows/" + i;
 
         let detail = document.createElement("button");
         detail.className = "btn btn-primary";
