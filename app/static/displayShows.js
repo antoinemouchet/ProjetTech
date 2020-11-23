@@ -56,6 +56,7 @@ async function buildPage() {
         row.appendChild(col4);
         
         showList.appendChild(row);
+        showList.appendChild(document.createElement("hr"));
     }
 
 

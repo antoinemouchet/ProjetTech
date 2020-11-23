@@ -89,42 +89,50 @@ def watch_list_post(id):
         return redirect('/list/%d' % id)
 
 
-@app.route('/shows/', methods=['POST'])
+@app.route('/newShow/', methods=['GET', 'POST'])
 def show_create():
     """
     Create a new show.
 
     Author: Antoine Mouchet
     """
-    new_show_data = request.form
-    new_show_file = request.files
+    if request.method == "POST":
+        new_show_data = request.form
+        new_show_file = request.files
 
-    # Store image and video in static/img and static/video respectively
-    # Get the file from the request then store it?
+        # Store image and video in static/img and static/video respectively
+        # Get the file from the request then store it?
 
-    new_show = Show(
-        name=new_show_data["name"], desc=new_show_data["desc"],
-        tags=new_show_data["tags"])
+        new_show = Show(
+            name=new_show_data["name"], desc=new_show_data["desc"],
+            tags=new_show_data["tags"])
 
-    # Generate random files names for file of the show
-    path_to_show_img = str(uuid.uuid4())
-    path_to_show_video = str(uuid.uuid4())
+        # Generate random files names for file of the show
+        path_to_show_img = str(uuid.uuid4())
+        path_to_show_video = str(uuid.uuid4())
 
-    img_extension = new_show_file["img"].filename.split('.')[1]
-    video_extension = new_show_file["video"].filename.split('.')[1]
+        img_extension = new_show_file["img"].filename.split('.')[1]
+        video_extension = new_show_file["video"].filename.split('.')[1]
 
-    # Check that each path exists (therefore each content exists)
-    if new_show_file["img"]:
-        new_show.img = os.path.join(os.getcwd(), "static", "img", path_to_show_img + "." + img_extension)
-        new_show_file["img"].save(os.path.join(os.getcwd(), "static", "img", path_to_show_img + "." +  img_extension))
+        # Check that each path exists (therefore each content exists)
+        if new_show_file["img"]:
+            new_show.img = os.path.join( "static", "img", path_to_show_img + "." + img_extension)
+            new_show_file["img"].save(os.path.join("static", "img", path_to_show_img + "." +  img_extension))
 
-    if new_show_file["video"]:
-        new_show.video = os.path.join(os.getcwd(), "static", "video", path_to_show_video + "." + video_extension)
-        new_show_file["video"].save(os.path.join(os.getcwd(), "static", "video", path_to_show_video + "." +  video_extension))
+        if new_show_file["video"]:
+            new_show.video = os.path.join("static", "video", path_to_show_video + "." + video_extension)
+            new_show_file["video"].save(os.path.join("static", "video", path_to_show_video + "." +  video_extension))
 
-    session.add(new_show)
-    session.commit()
-    return "success"
+        session.add(new_show)
+        session.commit()
+
+        return redirect("/show-list/")
+
+    else:
+        newShow = env.get_template('showForm.html')
+        return header("Add a show") + newShow.render() + footer()
+
+
 
 
 @app.route('/shows/', methods=['GET'])
@@ -137,15 +145,25 @@ def show_all():
     shows = session.query(Show).all()
 
     data = []
+    i = 0
+
     for show in shows:
         data.append({
             "name": show.name,
             "desc": show.desc,
             "img": show.img,
-            "tags": show.tags
+            "tags": show.tags,
+            "id": i,
         })
 
+        i += 1
+
     return jsonify(data)
+
+@app.route('/show-list/', methods=["GET"])
+def display_show():
+    shows = env.get_template('shows.html')
+    return header("Shows") + shows.render() + footer()
 
 @app.route('/shows/<int:id>', methods=['GET'])
 def show_get(id):
