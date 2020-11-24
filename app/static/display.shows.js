@@ -21,7 +21,7 @@ async function buildPage() {
 
         // First column is for image
         let col1 = document.createElement("div");
-        col1.className = "col-sm";
+        col1.className = "col-sm text-center";
         let img = document.createElement("img");
         img.src = "/" + show["img"];
         img.width = 128;
@@ -29,23 +29,33 @@ async function buildPage() {
 
         // Second column is title
         let col2 = document.createElement("div");
-        col2.className = "col-sm";
+        col2.className = "col-sm my-auto text-center";
         col2.innerText = show["name"];
+
 
         // Third column is for tags
         let col3 = document.createElement("div");
-        col3.className = "col-sm";
-        col3.innerText = show["tags"];
+        col3.className = "col-sm my-auto text-center";
+
+        // HTML for tags
+        let tags = show["tags"].split(";");
+        tags.sort()
+        let htmlTags = "";
+        for (let i = 0; i < tags.length; i++) {
+            htmlTags += "<button type='button' class='btn btn-secondary btn-sm' style='padding:1px;line-height:150%'> " + tags[i] + " </button> ";        
+        }
+        
+        col3.innerHTML = htmlTags;
 
         // Fourth column is to go to specific page
         let col4 = document.createElement("div");
-        col4.className = "col-sm";
+        col4.className = "col-sm my-auto text-center";
 
         let a = document.createElement("a");
         a.href = "/show-detail/" + show["id"];
 
         let detail = document.createElement("button");
-        detail.className = "btn btn-primary";
+        detail.className = "btn btn-info";
         detail.innerText = "Details";
 
         a.appendChild(detail);

@@ -44,12 +44,28 @@ async function buildPage() {
     let descCol = document.createElement("div");
     descCol.className = "col-8";
     
+
     let desc = document.createElement("p");
-    desc.innerHTML = "Description: " + show["desc"] + "<br><br>Tags: " + show["tags"];
+    desc.innerHTML = "<b>Description:</b> " + show["desc"];
     desc.style.textAlign = "left";
+
+    // HTML for tags
+    let tags = show["tags"].split(";");
+    tags.sort();
+    let htmlTags = "";
+    for (let i = 0; i < tags.length; i++) {
+        htmlTags += "<button type='button' class='btn btn-secondary'> " + tags[i] + " </button> ";        
+    }
+
+    let tagsButton = document.createElement("div");
+    tagsButton.innerHTML = "<b>Tags:</b> " + htmlTags;
+    tagsButton.style.textAlign = "left";
+    tagsButton.style.padding = "3px";
+    tagsButton.style.marginTop = "5cm";
 
     // Add description to column
     descCol.appendChild(desc);
+    descCol.appendChild(tagsButton);
 
     // Add columns to outermost row
     row2.appendChild(imgCol);
