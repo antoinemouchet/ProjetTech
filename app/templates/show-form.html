@@ -3,18 +3,19 @@
     <div class="container">
         <h1 style="text-align: center;">Add a new video</h1>
 
-        <form action="/new-show/" method="POST" class="show-form" enctype="multipart/form-data" id="myForm">
+        <script src="../static/show.validator.js">//addListeners();</script>
+        <form action="/new-show/" method="POST" class="show-form" enctype="multipart/form-data" id="myForm" onsubmit="return validateShow()">
             <div class="form-group row">
                 <label for="inputTitle" class="col-sm-2 col-form-label">Title</label>
-                <input type="text" name="name" placeholder="Enter title of the video here" class="form-control col-sm-10" id="inputTitle">
+                <input type="text" name="name" placeholder="Enter title of the video here" class="form-control col-sm-10" id="input-title">
             </div>
             <div class="form-group row">
                 <label for="inputDesc" class="col-sm-2 col-form-label">Description</label>
-                <textarea name="desc" placeholder="Enter description of video here" class="form-control col-sm-10" id="inputDesc"></textarea>
+                <textarea name="desc" placeholder="Enter description of video here" class="form-control col-sm-10" id="input-desc"></textarea>
             </div>
             <div class="form-group row">
                 <label for="inputTags" class="col-sm-2 col-form-label">Tags</label>
-                <input type="text" name="tags" placeholder="Enter tags of video here" class="form-control col-sm-10" id="inputTags">
+                <input type="text" name="tags" placeholder="Enter tags of video here like this: adventure;romance" class="form-control col-sm-10" id="input-tags">
             </div>
             <div class="form-group row">
                 <div class="col-sm-12">
@@ -23,8 +24,8 @@
                           <span class="input-group-text" id="inputGroupFileAddon01">Image</span>
                         </div>
                         <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01" name="img">
-                            <label class="custom-file-label" for="inputGroupFile01">Choose image</label>
+                            <input type="file" class="custom-file-input" id="input-image" aria-describedby="inputGroupFileAddon01" name="img">
+                            <label class="custom-file-label" for="input-image">Choose image</label>
                         </div>
                     </div>
                 </div>
@@ -36,8 +37,8 @@
                           <span class="input-group-text" id="inputGroupFileAddon01">Video</span>
                         </div>
                         <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01" name="video">
-                            <label class="custom-file-label" for="inputGroupFile01">Choose video file</label>
+                            <input type="file" class="custom-file-input ivc" id="input-video" aria-describedby="inputGroupFileAddon01" name="video">
+                            <label class="custom-file-label" for="input-video">Choose video file</label>
                         </div>
                     </div>
                 </div>
@@ -50,5 +51,19 @@
         </form>
     </div>
 
+    <script>
+        document.querySelector('#input-image').addEventListener('change', function (e) {
+        var name = document.getElementById("input-image").files[0].name;
+        var nextSibling = e.target.nextElementSibling
+        nextSibling.innerText = name
+        })
+
+        document.querySelector('#input-video').addEventListener('change', function (e) {
+        var name = document.getElementById("input-video").files[0].name;
+        var nextSibling = e.target.nextElementSibling
+        nextSibling.innerText = name
+        })
+
+    </script>
     
 {{ footer }}
