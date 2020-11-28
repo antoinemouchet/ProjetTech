@@ -84,11 +84,11 @@ class WatchList(Base):
     __tablename__ = 'watchlists'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    # show = Column(Integer, ForeignKey('Show.id'))  -> see ShowList
-    user_id = Column(Integer, ForeignKey('users.id'))
-    # status : what is it ? xD
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    status = Column(Boolean, default=False)
 
 
+# cause each WatchList can contain more than 1 show.
 class ShowList(Base):
     __tablename__ = 'showlists'
 
