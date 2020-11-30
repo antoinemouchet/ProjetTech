@@ -4,6 +4,7 @@ from jinja2 import Template, Environment, PackageLoader, select_autoescape
 from flask import jsonify, redirect, request
 
 from sqlalchemy.sql.expression import func
+import sqlalchemy.sql
 
 import uuid, os
 
@@ -46,48 +47,82 @@ def footer():
 @app.route('/list/<int:id>', methods=['GET'])
 def watch_list_get(id):
     """
-    Obtain watch list of user with user id.
+    Obtain watch list of user with given id.
 
     Author: Jérémie Dierickx
     """
-    watchlist = session.query(WatchList).filter_by(id=id).first()
-    if not watchlist or watchlist.user_id != current_user.id:
-        return redirect('/shows')  # no access
-    else:
-        shows = session.query(ShowList).filter_by(watchlist_id=id).all()
-        # [{id:,nom:,description:,img:,file:,tags:,}, ...]
-        return jsonify(shows)
+    watchlist = session.query(WatchList).filter_by(user_id=id).first()
+    if not watchlist:
+        if id == current_user.id:
+            watchlist = WatchList(user_id = current_user.id)
+            session.add(watchlist)
+            session.commit()
+        else:
+            return jsonify({'error': 'watchlist not found.'})  # watchlist not exist
+    
+    shows = session.query(ShowList).filter_by(watchlist_id=watchlist.id).all()
+    # [{id:,nom:,description:,img:,file:,tags:,}, ...]
+    showsList = []
+    for show in shows:
+        show = session.query(Show).filter_by(id=show.show_id).first()
+        showsList.append({'id':show.id, 'name':show.name, 'desc':show.desc,'img':show.img,'video':show.video,'tags':show.tags})
+    return jsonify({'data' :showsList})
 
 
-@app.route('/list/<int:id>', methods=['POST'])
+@app.route('/list/<int:id>', methods=['POST']) 
+@login_required
 def watch_list_post(id):
     """
-    Modify watch list of user with user id.
+    Modify watch list of user with given id.
 
     Author: Jérémie Dierickx
     """
-    watchlist = session.query(WatchList).filter_by(id=id).first()
-    if not watchlist or watchlist.user_id != current_user.id:
-        return redirect('/shows')  # no access
-    else:
+    watchlist = session.query(WatchList).filter_by(user_id=id).first()
+    if watchlist and watchlist.user_id == current_user.id:
         data = request.json  # {delete:[id1,id2,...], add:[id1,id2,...]}
         delete = data['delete']  # shows to delete from watchlist
         add = data['add']  # shows to add to watchlist
         if delete:
             for show_id in delete:
                 show = session.query(ShowList).filter_by(
-                    watchlist_id=id, show_id=show_id).first()
+                    watchlist_id=watchlist.id, show_id=show_id).first()
                 if show:
                     session.delete(show)
+                    session.commit()
         if add:
             for show_id in add:
-                show = session.query(Show).filter_by(show_id=show_id).exist()
-                if show:
-                    session.add(ShowList(watchlist_id=id, show_id=show_id))
-        session.commit()
+                show = session.query(Show).filter_by(id=show_id).first()
+                if show and not session.query(ShowList).filter_by(watchlist_id=watchlist.id, show_id=show_id).first():
+                    session.add(ShowList(watchlist_id=watchlist.id, show_id=show_id))
+                    session.commit()
+        
 
-        return redirect('/list/%d' % id)
+    return "success"
 
+@app.route('/list/', methods=['GET'])
+@login_required
+def watch_list_main_get():
+    """
+    Main page for watch lists.
+
+    Author: Jérémie Dierickx
+    """
+    watchlist = env.get_template('watchlists.html')
+    return header("Watch Party") + watchlist.render(user_id = current_user.id) + footer()
+
+
+@app.route('/comparison', methods=['GET'])
+@login_required
+def comparison_main_get():
+    """
+    Get comparison main html page.
+
+    Author: Jérémie Dierickx
+    """
+    comparison = env.get_template('compare.html')
+    return header("Watch Party") + comparison.render(user_id = current_user.id) + footer()
+
+    
 
 @app.route('/new-show/', methods=['GET', 'POST'])
 def show_create():
@@ -154,11 +189,13 @@ def show_all():
 
     return jsonify(data)
 
+
 @app.route('/show-list/', methods=["GET"])
 def display_shows():
     shows = env.get_template('shows.html')
     return header("Shows") + shows.render() + footer()
 
+  
 @app.route('/show/<int:show_id>', methods=['GET'])
 def show_get(show_id):
     """
@@ -192,17 +229,16 @@ def recommendations_get(id):
 
     Author: Jérémie Dierickx
     """
-    user = User.query.filter_by(id=id).first()
+    user = session.query(User).filter_by(id=id).first()
     if user:
         tags_frequencies = {}
-        user_watchlists = WatchList.query.filter_by(user_id=id).all()
+        user_watchlists = session.query(WatchList).filter_by(user_id=id).all()
 
         for watchlist in user_watchlists:  # iterate through all user's watchlists
-            watchlist_showlists = ShowList.query.filter_by(
+            watchlist_showlists = session.query(ShowList).filter_by(
                 watchlist_id=watchlist.id).all()
-
             for showlist in watchlist_showlists:  # iterate through all watchlist's showlists
-                show = Show.query.filter_by(
+                show = session.query(Show).filter_by(
                     id=showlist.show_id).first()  # get show
                 if show:
                     tag_list = show.tags.split(';')
@@ -215,19 +251,34 @@ def recommendations_get(id):
 
         # do something with frequencies
         if len(tags_frequencies) > 0:
+            print(tags_frequencies)
             sorted_3_tags = sorted(tags_frequencies.keys(), key=lambda key: tags_frequencies[key])[
                 :4]  # maybe needs optimization ?
-            recommendations = Show.query.filter(Show.tags.ilike(sorted_3_tags[0])).order_by(
-                func.random()).limit(10)  # max 10 recommendation for the most common tag.
+            recommendationsList = {}
+            print(sorted_3_tags[0])
+            for show in session.query(Show).filter(Show.tags.contains(sorted_3_tags[0])).order_by(func.random()).limit(10):  # max 10 recommendation for the most common tag.
+                    recommendationsList[show.id] = {'id':show.id, 'name':show.name, 'desc':show.desc,'img':show.img,'video':show.video,'tags':show.tags}
             index = 1
             while index < len(sorted_3_tags):
-                recommendations = recommendations.union(Show.query.filter(Show.tags.ilike(
-                    sorted_3_tags[index])).order_by(func.random()).limit(4))  # max 4 for others.
+                for show in session.query(Show).filter(Show.tags.contains(sorted_3_tags[index])).order_by(func.random()).limit(4): # max 4 for others.
+                    recommendationsList[show.id] = {'id':show.id, 'name':show.name, 'desc':show.desc,'img':show.img,'video':show.video,'tags':show.tags}
                 index += 1
-            return jsonify(recommendations)
+            
+            
+            return jsonify({'recommendations' : recommendationsList})
 
-    return redirect('/shows')  # user not exist
+    return jsonify({'error' : 'user not exist'})  
 
+@app.route('/recommendations', methods=['GET'])
+@login_required
+def recommendations_main_get():
+    """
+    Get recommendations main html page.
+
+    Author: Jérémie Dierickx
+    """
+    recommendations = env.get_template('recommendations.html')
+    return header("Watch Party") + recommendations.render(user_id = current_user.id) + footer()
 
 @app.route('/login/', methods=['POST', 'GET'])
 def login():
