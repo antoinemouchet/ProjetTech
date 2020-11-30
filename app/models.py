@@ -15,6 +15,14 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     pseudo = Column(String)
     password = Column(String)
+    enabled = Column(Boolean)
+    authenticated = Column(Boolean)
+
+    def is_authenticated(self):
+        return self.authenticated
+
+    def is_active(self):
+        return self.enabled
 
     def is_anonymous(self):
         return False
