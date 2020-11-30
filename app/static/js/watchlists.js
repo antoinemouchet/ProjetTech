@@ -18,7 +18,7 @@ function createButton(value) {
  * Delete a show by adding them as a delete change.
  * @param {Number} showId Id of show to delete.
  */
-function deleteShow() {
+function deleteShow(showId) {
     changes.delete.push(showId);
     sendChanges();
 }
@@ -34,6 +34,20 @@ function addShow() {
         changes.add.push(showId);
         sendChanges();
     }
+}
+
+async function createAndJoinWatchParty(showId) {
+    // Create a watch party
+    let data = await fetch('http://localhost:5000/session/' + showId, {
+        method: "POST",
+        mode: "cors",
+    });
+
+    // Retrieve watch party id
+    let id = (await data.json())['id'];
+
+    // Join watch party
+    location.href = "http://localhost:5000/watch/" + id;
 }
 
 function rowShow(pictureLink, showName, showPath, showTag, showId) {
@@ -56,16 +70,21 @@ function rowShow(pictureLink, showName, showPath, showTag, showId) {
 
     // Create a watch party
     let showLink = document.createElement('a');
-    showLink.href = '/' + showPath;
+    // showLink.href = '/session/' + showId;
+    showLink.href = '#';
+    showLink.onclick = () => {
+        createAndJoinWatchParty(showId);
+    }
+
     let nameTxt = document.createTextNode(showName);
     showLink.appendChild(nameTxt);
     name.appendChild(showLink);
 
-    //tags
+    // Tags
     let tagsDiv = document.createElement('div');
     let tagNames = showTag.split(';');
     for (let tagName of tagNames) {
-        if (tag_name != "") {
+        if (tagName != "") {
             let tagBlock = document.createElement('p');
             let tagTxt = document.createTextNode(tagName);
             tagBlock.appendChild(tagTxt);

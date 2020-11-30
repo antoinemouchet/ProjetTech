@@ -68,7 +68,6 @@ async function sync() {
             headers: { "Content-Type": "application/json" },
         });
         let json = await data.json();
-        console.log(json);
         state = json;
         setInterval(() => {
             sync();
@@ -84,16 +83,14 @@ async function sync() {
         });
         let json = await data.json();
         let changed = false;
-        if (video.currentTime - 500.0 / 60.0 > json["time"] || video.currentTime + 500.0 / 60.0 < json["time"]) {
-            state.time = video.currentTime;
+        if (video.currentTime - 500.0 / 60 > json["time"] || video.currentTime + 500.0 / 60 < json["time"]) {
             changed = true;
         }
         if (state.state != json["state"]) {
-            state.time = video.currentTime;
             changed = true;
         }
         // If remote state changed
-        // AND IF user do not make a  change
+        // AND IF user does not make a  change
         if (changed && !userModified) {
             state = json;
             update();
@@ -102,13 +99,14 @@ async function sync() {
         } else {
             // Okay we can safely
             // push our state
+            state.time = video.currentTime;
             fetch('http://localhost:5000/session/' + watchPartyTag + '/', {
                 method: "PATCH",
                 mode: "cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(state)
             });
-            console.log(JSON.stringify(state));
+            console.log("PUSHED: " + state.time);
             userModified = false;
         }
     }

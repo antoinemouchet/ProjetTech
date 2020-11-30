@@ -27,15 +27,15 @@ function rowShow(pictureLink, showName, showPath, showTag) {
     name.appendChild(showLink);
 
     //tags
-    let tags_div = document.createElement('div');
-    let tag_names = showTag.split(';');
-    for (tag_name of tag_names) {
-        let tag_block = document.createElement('p');
-        let tag_txt = document.createTextNode(tag_name);
-        tag_block.appendChild(tag_txt);
-        tags_div.appendChild(tag_block);
+    let tagsDiv = document.createElement('div');
+    let tagNames = showTag.split(';');
+    for (tagName of tagNames) {
+        let tagBlock = document.createElement('p');
+        let tagTxt = document.createTextNode(tagName);
+        tagBlock.appendChild(tagTxt);
+        tagsDiv.appendChild(tagBlock);
     }
-    tags.appendChild(tags_div);
+    tags.appendChild(tagsDiv);
 
     row.appendChild(logo);
     row.appendChild(name);
@@ -62,7 +62,7 @@ async function fetchRecommendations(userId) {
     return await data.json();
 }
 
-async function fetch_and_populate(userId) {
+async function fetchAndPopulate(userId) {
     let recommendations = await fetchRecommendations(userId);
     if (recommendations.error) {
         alert(recommendations.error);
@@ -72,10 +72,10 @@ async function fetch_and_populate(userId) {
     }
 }
 
-async function populate_by_username() {
+async function populateByUsername() {
     let user = users[document.getElementById('username').value.toLowerCase()];
     if (user)
-        await fetch_and_populate(user);
+        await fetchAndPopulate(user);
     else
         alert('user not exist');
 }
@@ -87,8 +87,8 @@ async function fetchUsers() {
         mode: "cors",
         headers: { "Content-Type": "application/json" },
     });
-    let users_data = await data.json();
-    for (let user of users_data) {
+    let usersData = await data.json();
+    for (let user of usersData) {
         users[user.pseudo.toLowerCase()] = user.id;
     }
 

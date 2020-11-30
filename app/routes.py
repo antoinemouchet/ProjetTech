@@ -302,13 +302,12 @@ def recommendations_get(id):
     user = session.query(User).filter_by(id=id).first()
 
     # Check if watchlist isn't None
-    # AND
-    # Check if current user is the user who wants to modify the list
-    if user and current_user.id:
+    if user and user.id == current_user.get_id():
         tags_frequencies = {}
 
         # Get watch list of user
-        watchlist = session.query(WatchList).filter_by(user_id=id).first()
+        watchlist = session.query(WatchList).filter_by(
+            user_id=current_user.get_id()).first()
 
         # He doesn't have one
         if not watchlist:
@@ -372,7 +371,7 @@ def recommendations_get(id):
     return jsonify({'error': 'user not exist'})
 
 
-@app.route('/recommendations', methods=['GET'])
+@app.route('/recommendations-list/', methods=['GET'])
 @login_required
 def recommendations_main_get():
     """
@@ -686,6 +685,39 @@ def session_create():
     })
 
 
+@app.route('/session/<int:media>', methods=['POST'])
+@login_required
+def session_create_from_file(media):
+    """
+    Create a watch party with default parameters and given media.
+
+    Author: Vincent Higginson
+    """
+    # Get path to media
+    media = session.query(Show).filter_by(id=media).first()
+    if not media:
+        pass
+    media = media.video
+
+    # Set default parameters
+    # PUBLIC watch party
+    watch_party_type = True
+
+    # Let's create the watch party
+    watch_party = WatchParty(id=get_random_word(),
+                             state=False, time=0, media=media)
+    session.add(watch_party)
+
+    # Let's define parameters
+    parameters = WatchPartyParameters(id=watch_party.id, type=watch_party_type)
+    session.add(parameters)
+
+    session.commit()
+
+    # And directly redirect to watch party
+    return jsonify({'id': watch_party.id})
+
+
 @app.route('/watch/<tag>', methods=['GET'])
 @login_required
 def watch(tag):
@@ -694,8 +726,13 @@ def watch(tag):
 
     Author: Vincent Higginson
     """
+    # Check permission and existence of watch party
+    watch_party = session.query(WatchParty).filter_by(id=tag).first()
+    if not watch_party:
+        pass
+    media = watch_party.media
     form = env.get_template('watch.html')
-    return header("Watch Party") + form.render(watch_party_tag=tag) + footer()
+    return header("Watch Party") + form.render(watch_party_tag=tag, media='/'+media) + footer()
 
 
 @app.route('/watch-party/', methods=['GET'])

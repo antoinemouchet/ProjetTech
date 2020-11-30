@@ -2,7 +2,6 @@ window.onload = () => {buildPage();}
 
 
 async function buildPage() {
-  
     let data = await fetch('http://localhost:5000/shows/', {
             method: "GET",
             mode: "cors",

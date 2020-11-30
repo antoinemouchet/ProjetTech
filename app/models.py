@@ -39,6 +39,7 @@ class WatchParty(Base):
     id = Column(String, primary_key=True)
     time = Column(Float)
     state = Column(Boolean)
+    media = Column(String)
 
 
 class WatchPartyParameters(Base):
