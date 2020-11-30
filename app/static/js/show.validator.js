@@ -1,10 +1,9 @@
 function validateShow() {
-    
     // Validation on Strings
     let formName = document.getElementById("input-title").value;
     let desc = document.getElementById("input-desc").value;
     let tags = document.getElementById("input-tags").value;
-    
+
     if (!checkString(formName) || !checkString(desc) || !checkString(tags)) {
         window.alert("The name, the description and the tags of the show have to be provided.");
         return false;
@@ -13,8 +12,8 @@ function validateShow() {
     // Validation on files
     let imgValidExtensions = [".jpg", ".jpeg", ".bmp", ".gif", ".png"];
     let videoValidExtensions = [".mp4", ".webm"]
-    
-    if(!checkFile("input-image", "Image", imgValidExtensions) || !checkFile("input-video", "Video", videoValidExtensions)){
+
+    if (!checkFile("input-image", "Image", imgValidExtensions) || !checkFile("input-video", "Video", videoValidExtensions)) {
         return false;
     }
 
@@ -26,20 +25,24 @@ function validateShow() {
  * @param {String} cstring : given string to check
  */
 function checkString(cstring) {
-    
-    if(cstring.trim() === ""){
+
+    if (cstring.trim() === "") {
         return false;
     }
 
     return true;
 }
 
-
-function checkFile(fileID, fType, validExtensions)
-{
+/**
+ * Check validity of given file with specificed constraints.
+ * @param {*} fileID Id of the html element containing the file.
+ * @param {*} fType Meta name of the wanted file (Eg: Picture, Video, Document, ...)
+ * @param {Array} validExtensions Array of valid file extensions.
+ */
+function checkFile(fileID, fType, validExtensions) {
     let cFile = document.getElementById(fileID).value;
 
-    if (cFile.length == 0){
+    if (cFile.length == 0) {
         window.alert(fType + " must be entered.");
         return false;
     }
@@ -49,22 +52,18 @@ function checkFile(fileID, fType, validExtensions)
     // check validity of extension        
     for (let i = 0; i < validExtensions.length; i++) {
         let currentExtension = validExtensions[i];
-        
-        if(cFile.substr(cFile.length - currentExtension.length, currentExtension.length).toLowerCase() == currentExtension.toLowerCase()){
+
+        if (cFile.substr(cFile.length - currentExtension.length, currentExtension.length).toLowerCase() == currentExtension.toLowerCase()) {
             validity = true;
             return validity;
         }
     }
 
     // If invalid
-    if(!validity){
-        window.alert("Sorry, "+ fType + " extension is invalid, allowed extensions for " + fType +  " are: " + validExtensions.join(", "));
+    if (!validity) {
+        window.alert("Sorry, " + fType + " extension is invalid, allowed extensions for " + fType + " are: " + validExtensions.join(", "));
         return false;
     }
 
-    return true;   
+    return true;
 }
-
-
-
-

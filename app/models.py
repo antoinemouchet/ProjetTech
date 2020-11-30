@@ -56,11 +56,6 @@ class WatchPartyBlackList(Base):
     user = Column(Integer, ForeignKey('users.id'))
 
 
-@login_manager.user_loader
-def load_user(userid):
-    return session.query(User).get(int(userid))
-
-
 class WatchList(Base):
     __tablename__ = 'watchlists'
 
@@ -85,6 +80,7 @@ class FriendShip(Base):
     user_a = Column(Integer, ForeignKey('users.id'))
     user_b = Column(Integer, ForeignKey('users.id'))
 
+
 class Show(Base):
     # Table name
     __tablename__ = "show"
@@ -102,6 +98,12 @@ class Show(Base):
 
     def get_name(self):
         return self.name
+
+
+@login_manager.user_loader
+def load_user(userid):
+    return session.query(User).get(int(userid))
+
 
 Base.metadata.create_all(engine)
 

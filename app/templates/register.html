@@ -20,9 +20,9 @@
             <!-- {{ form.hidden_tag() }} -->
             {% with errors = get_flashed_messages(category_filter=["danger"]) %}
             {% if errors %}
-                {%- for msg in errors %}
-                <p style="color:#ff8c00">{{ msg }}</p>
-                {% endfor -%}
+            {%- for msg in errors %}
+            <p style="color:#ff8c00">{{ msg }}</p>
+            {% endfor -%}
             {% endif %}
             {% endwith %}
             <div>

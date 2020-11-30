@@ -14,8 +14,12 @@ from app.models import *
 from app.forms import *
 from app.utils import *
 
+# Prepare stuff for rendering templates
 env = Environment(
+    # 'app' is the name of the current python module
+    # 'templates' is the directory containing templates
     loader=PackageLoader("app", "templates"),
+    # automatically select html file (and nothing else)
     autoescape=select_autoescape(["html"])
 )
 
@@ -24,13 +28,18 @@ env = Environment(
 def unauthorized():
     """
     A not connected user tries to use login_required view.
+    Redirect him to login page.
+
+    Author: Vincent Higginson
     """
     return redirect('/login/', 302)
 
 
 def header(page_name):
     """
-    Render heading.
+    Render heading. Load header from file system and render it.
+
+    Author: Vincent Higginson
     """
     header = env.get_template("header.html")
 
@@ -39,7 +48,9 @@ def header(page_name):
 
 def footer():
     """
-    Render footer.
+    Render footer. Load footer from file system and render it.
+
+    Author: Vincent Higginson
     """
     footer = env.get_template("footer.html")
 
@@ -54,23 +65,31 @@ def watch_list_get(id):
 
     Author: Jérémie Dierickx
     """
+    # Get watch list from current user
     watchlist = session.query(WatchList).filter_by(user_id=id).first()
+
+    # User may not have a watch list at the moment
     if not watchlist:
+        # The actual user may not be the user who asked for the watch list
         if id == current_user.id:
             watchlist = WatchList(user_id=current_user.id)
             session.add(watchlist)
             session.commit()
         else:
-            # watchlist not exist
-            return jsonify({'error': 'watchlist not found.'})
+            # Watch list does not exist
+            return jsonify({'error': 'watchlist not found.'}, 404)
 
+    # Query all shows linked to this watch list
     shows = session.query(ShowList).filter_by(watchlist_id=watchlist.id).all()
-    # [{id:,nom:,description:,img:,file:,tags:,}, ...]
+
+    # Build a data structure with them
     showsList = []
     for show in shows:
         show = session.query(Show).filter_by(id=show.show_id).first()
         showsList.append({'id': show.id, 'name': show.name, 'desc': show.desc,
                           'img': show.img, 'video': show.video, 'tags': show.tags})
+
+    # Return this structure using json
     return jsonify({'data': showsList})
 
 
@@ -82,25 +101,39 @@ def watch_list_post(id):
 
     Author: Jérémie Dierickx
     """
+    # Get watch list from current user
     watchlist = session.query(WatchList).filter_by(user_id=id).first()
+
+    # Check if watchlist isn't None
+    # AND
+    # Check if current user is the user who wants to modify the list
     if watchlist and watchlist.user_id == current_user.id:
-        data = request.json  # {delete:[id1,id2,...], add:[id1,id2,...]}
-        delete = data['delete']  # shows to delete from watchlist
-        add = data['add']  # shows to add to watchlist
-        if delete:
-            for show_id in delete:
-                show = session.query(ShowList).filter_by(
-                    watchlist_id=watchlist.id, show_id=show_id).first()
-                if show:
-                    session.delete(show)
-                    session.commit()
-        if add:
-            for show_id in add:
-                show = session.query(Show).filter_by(id=show_id).first()
-                if show and not session.query(ShowList).filter_by(watchlist_id=watchlist.id, show_id=show_id).first():
-                    session.add(
-                        ShowList(watchlist_id=watchlist.id, show_id=show_id))
-                    session.commit()
+        # JSON containing all modifications
+        # {
+        #   delete: [id1, id2, ...],
+        #   add: [id1, id2, ...]
+        # }
+        data = request.json
+        # Shows to delete from watchlist
+        delete = data['delete']
+        # Shows to add to watchlist
+        add = data['add']
+
+        # Delete ShowList elements
+        for show_id in delete:
+            show = session.query(ShowList).filter_by(
+                watchlist_id=watchlist.id, show_id=show_id).first()
+            if show:
+                session.delete(show)
+                session.commit()
+
+        # Create ShowList elements
+        for show_id in add:
+            show = session.query(Show).filter_by(id=show_id).first()
+            if show and not session.query(ShowList).filter_by(watchlist_id=watchlist.id, show_id=show_id).first():
+                session.add(
+                    ShowList(watchlist_id=watchlist.id, show_id=show_id))
+                session.commit()
 
     return "success"
 
@@ -109,72 +142,80 @@ def watch_list_post(id):
 @login_required
 def watch_list_main_get():
     """
-    Main page for watch lists.
+    Render watch list page.
 
     Author: Jérémie Dierickx
     """
     watchlist = env.get_template('watchlists.html')
-    return header("Watch Party") + watchlist.render(user_id=current_user.id) + footer()
+    return header("Watch List") + watchlist.render(user_id=current_user.id) + footer()
 
 
 @app.route('/comparison/', methods=['GET'])
 @login_required
 def comparison_main_get():
     """
-    Get comparison main html page.
+    Render comparison page.
 
     Author: Jérémie Dierickx
     """
     comparison = env.get_template('compare.html')
-    return header("Watch Party") + comparison.render(user_id=current_user.id) + footer()
+    return header("Compare Watch List") + comparison.render(user_id=current_user.id) + footer()
 
 
-@app.route('/new-show/', methods=['GET', 'POST'])
+@app.route('/new-show/', methods=['POST'])
 @login_required
 def show_create():
     """
-    Create a new show.
+    Create a new show from form data.
 
     Author: Antoine Mouchet
     """
-    if request.method == "POST":
-        new_show_data = request.form
-        new_show_file = request.files
+    new_show_data = request.form
+    new_show_file = request.files
 
-        # Store image and video in static/img and static/video respectively
-        # Get the file from the request then store it?
+    # Store image and video in static/img and static/video respectively
+    # Get the file from the request then store it?
+    new_show = Show(
+        name=new_show_data["name"],
+        desc=new_show_data["desc"],
+        tags=new_show_data["tags"]
+    )
 
-        new_show = Show(
-            name=new_show_data["name"], desc=new_show_data["desc"],
-            tags=new_show_data["tags"])
+    # Generate random files names for file of the show
+    path_to_show_img = str(uuid.uuid4())
+    path_to_show_video = str(uuid.uuid4())
 
-        # Generate random files names for file of the show
-        path_to_show_img = str(uuid.uuid4())
-        path_to_show_video = str(uuid.uuid4())
+    # Check that each path exists (therefore each content exists)
+    if new_show_file["img"]:
+        img_extension = new_show_file["img"].filename.split('.')[1]
+        new_show.img = os.path.join(
+            "static", "img", path_to_show_img + "." + img_extension)
+        new_show_file["img"].save(os.path.join(
+            "static", "img", path_to_show_img + "." + img_extension))
 
-        # Check that each path exists (therefore each content exists)
-        if new_show_file["img"]:
-            img_extension = new_show_file["img"].filename.split('.')[1]
-            new_show.img = os.path.join(
-                "static", "img", path_to_show_img + "." + img_extension)
-            new_show_file["img"].save(os.path.join(
-                "static", "img", path_to_show_img + "." + img_extension))
+    if new_show_file["video"]:
+        video_extension = new_show_file["video"].filename.split('.')[1]
+        new_show.video = os.path.join(
+            "static", "video", path_to_show_video + "." + video_extension)
+        new_show_file["video"].save(os.path.join(
+            "static", "video", path_to_show_video + "." + video_extension))
 
-        if new_show_file["video"]:
-            video_extension = new_show_file["video"].filename.split('.')[1]
-            new_show.video = os.path.join(
-                "static", "video", path_to_show_video + "." + video_extension)
-            new_show_file["video"].save(os.path.join(
-                "static", "video", path_to_show_video + "." + video_extension))
+    session.add(new_show)
+    session.commit()
 
-        session.add(new_show)
-        session.commit()
+    return redirect("/show-list/", 302)
 
-        return redirect("/show-list/")
 
-    else:
-        newShow = env.get_template('show-form.html')
-        return header("Add a show") + newShow.render() + footer()
+@app.route('/new-show/', methods=['GET'])
+@login_required
+def show_form_render():
+    """
+    Render form to add a show.
+
+    Author: Antoine Mouchet
+    """
+    newShow = env.get_template('show-form.html')
+    return header("Add a show") + newShow.render() + footer()
 
 
 @app.route('/shows/', methods=['GET'])
@@ -204,6 +245,11 @@ def show_all():
 @app.route('/show-list/', methods=["GET"])
 @login_required
 def display_shows():
+    """
+    Render all shows page. Shows are fetched by the page itself.
+
+    Author: Antoine Mouchet
+    """
     shows = env.get_template('shows.html')
     return header("Shows") + shows.render() + footer()
 
@@ -213,6 +259,7 @@ def display_shows():
 def show_get(show_id):
     """
     Get information about a specific show.
+
     Author: Antoine Mouchet
     """
     show_info = session.query(Show).filter_by(id=show_id).first()
@@ -234,6 +281,11 @@ def show_get(show_id):
 @app.route('/show-detail/<int:show_id>', methods=["GET"])
 @login_required
 def show_view(show_id):
+    """
+    Render page information about a specific show.
+
+    Author: Antoine Mouchet
+    """
     show = env.get_template('show-detail.html')
     return header("Details") + show.render(show=show_id) + footer()
 
@@ -246,43 +298,73 @@ def recommendations_get(id):
 
     Author: Jérémie Dierickx
     """
+    # Check if the given user id correspond to an existing user
     user = session.query(User).filter_by(id=id).first()
-    if user:
+
+    # Check if watchlist isn't None
+    # AND
+    # Check if current user is the user who wants to modify the list
+    if user and current_user.id:
         tags_frequencies = {}
-        user_watchlists = session.query(WatchList).filter_by(user_id=id).all()
 
-        for watchlist in user_watchlists:  # iterate through all user's watchlists
-            watchlist_showlists = session.query(ShowList).filter_by(
-                watchlist_id=watchlist.id).all()
-            for showlist in watchlist_showlists:  # iterate through all watchlist's showlists
-                show = session.query(Show).filter_by(
-                    id=showlist.show_id).first()  # get show
-                if show:
-                    tag_list = show.tags.split(';')
+        # Get watch list of user
+        watchlist = session.query(WatchList).filter_by(user_id=id).first()
 
-                    for tag in tag_list:
+        # He doesn't have one
+        if not watchlist:
+            # Return an empty recommendations list
+            return {'recommendations': []}
+
+        # Compute statistics based on shows present in watch list
+        watchlist_showlists = session.query(ShowList).filter_by(
+            watchlist_id=watchlist.id).all()
+
+        # Iterate through all watchlist's showlists
+        for showlist in watchlist_showlists:
+            # Get show
+            show = session.query(Show).filter_by(
+                id=showlist.show_id).first()
+
+            # Analyze tags
+            if show:
+                tag_list = show.tags.split(';')
+
+                # Update tag frequencies
+                for tag in tag_list:
+                    if tag != "":
                         if tag in tags_frequencies:
                             tags_frequencies[tag] += 1
                         else:
                             tags_frequencies[tag] = 0
 
-        # do something with frequencies
+        # Get show corresponding to tags frequencies
         if len(tags_frequencies) > 0:
-            print(tags_frequencies)
+            # Sort by frequencies
             sorted_3_tags = sorted(tags_frequencies.keys(), key=lambda key: tags_frequencies[key])[
-                :4]  # maybe needs optimization ?
+                :4]
             recommendationsList = {}
-            print(sorted_3_tags[0])
-            # max 10 recommendation for the most common tag.
+            # Max 10 recommendation for the most common tag.
             for show in session.query(Show).filter(Show.tags.contains(sorted_3_tags[0])).order_by(func.random()).limit(10):
                 recommendationsList[show.id] = {
-                    'id': show.id, 'name': show.name, 'desc': show.desc, 'img': show.img, 'video': show.video, 'tags': show.tags}
+                    'id': show.id,
+                    'name': show.name,
+                    'desc': show.desc,
+                    'img': show.img,
+                    'video': show.video,
+                    'tags': show.tags
+                }
             index = 1
             while index < len(sorted_3_tags):
-                # max 4 for others.
+                # Max 4 for others.
                 for show in session.query(Show).filter(Show.tags.contains(sorted_3_tags[index])).order_by(func.random()).limit(4):
                     recommendationsList[show.id] = {
-                        'id': show.id, 'name': show.name, 'desc': show.desc, 'img': show.img, 'video': show.video, 'tags': show.tags}
+                        'id': show.id,
+                        'name': show.name,
+                        'desc': show.desc,
+                        'img': show.img,
+                        'video': show.video,
+                        'tags': show.tags
+                    }
                 index += 1
 
             return jsonify({'recommendations': recommendationsList})
@@ -294,7 +376,7 @@ def recommendations_get(id):
 @login_required
 def recommendations_main_get():
     """
-    Get recommendations main html page.
+    Render recommendations page. Recommendations are fetched by the page itself.
 
     Author: Jérémie Dierickx
     """
@@ -305,12 +387,14 @@ def recommendations_main_get():
 @app.route('/login/', methods=['POST', 'GET'])
 def login():
     """
-    Connect a user.
+    Show connect form and connect a user.
 
     Author: Sémy Drif
     """
-    print("Salut")
+    # Prepare form
     form = LoginForm()
+
+    # POST and user submitted the form
     if form.validate_on_submit():
         user = session.query(User).filter_by(pseudo=form.username.data).first()
         if user is not None and check_password_hash(user.password, form.password.data):
@@ -324,6 +408,8 @@ def login():
             flash('Wrong password', 'danger')  # error message plus category
             return redirect('/login/', 302)
 
+    # User didn't submit anything
+    # So render form
     else:
         return render_template('login.html', form=form)
 
@@ -348,21 +434,24 @@ def users_create():
     Author: Sémy Drif
     """
     form = Register()
+    # Get user with this pseudo
     user_found = session.query(User).filter_by(
         pseudo=form.username.data).first()
-    # Permert d'avoir tout les utilisateurs de la base de donée
     if form.validate_on_submit():
+        # If a user with this pseudo exist
+        # We cannot allow the creation
         if user_found:
             flash("This pseudo is already used.", "danger")
             return render_template("register.html", form=form)
         else:
-
+            # Create the user
             new_user = User(pseudo=form.username.data, password=generate_password_hash(form.password.data),
                             enabled=False)
             session.add(new_user)
             session.commit()
             return redirect('/login/', 302)
-
+    # User didn't submit anything
+    # Just render form
     else:
         return render_template('register.html', form=form)
 
@@ -455,6 +544,7 @@ def friends_delete(tag):
 @app.route('/friends/<int:tag>', methods=["POST"])
 @login_required
 def friends_add(tag):
+    print("Salut salut")
     """
     Add a new friend to a user.
 
@@ -530,13 +620,16 @@ def session_update(tag):
 
     Author: Vincent Higginson
     """
+    # Get current watch party
     watchparty = session.query(WatchParty).filter_by(id=tag).first()
 
+    # Does it exist ?
     if watchparty == None:
         return jsonify({
             "msg": "Couldn't find a watch party."
         }), 404
     else:
+        # Update state in database
         data = request.json
         if data["state"] == "paused":
             data["state"] = False
@@ -596,6 +689,11 @@ def session_create():
 @app.route('/watch/<tag>', methods=['GET'])
 @login_required
 def watch(tag):
+    """
+    Render watch page.
+
+    Author: Vincent Higginson
+    """
     form = env.get_template('watch.html')
     return header("Watch Party") + form.render(watch_party_tag=tag) + footer()
 
@@ -603,11 +701,21 @@ def watch(tag):
 @app.route('/watch-party/', methods=['GET'])
 @login_required
 def watch_party_form():
+    """
+    Render watch form.
+
+    Author: Vincent Higginson
+    """
     form = env.get_template('watch-party.html')
     return header("Find a Watch Party") + form.render() + footer()
 
 
 @app.route('/', methods=['GET'])
 def front_page():
+    """
+    Render front page.
+
+    Author: Antoine Mouchet
+    """
     page = env.get_template('front-page.html')
     return page.render() + footer()

@@ -1,4 +1,4 @@
-body{
+body {
     margin: 0;
     padding: 0;
     background-color: whitesmoke;
@@ -6,7 +6,7 @@ body{
     font-family: sans-serif;
 }
 
-.loginbox{
+.loginbox {
     width: 320px;
     height: 420px;
     background: dimgray;
@@ -14,12 +14,12 @@ body{
     top: 50%;
     left: 50%;
     position: absolute;
-    transform: translate(-50%,-50%);
+    transform: translate(-50%, -50%);
     box-sizing: border-box;
     padding: 70px 30px;
 }
 
-.avatar{
+.avatar {
     width: 100px;
     height: 100px;
     border-radius: 50%;
@@ -28,22 +28,22 @@ body{
     left: calc(50% - 50px);
 }
 
-h1{
+h1 {
     margin: 0;
     padding: 0 0 20px;
     text-align: center;
     font-size: 22px;
 }
 
-.error{
-    text-align: center ;
+.error {
+    text-align: center;
 }
 
-.register{
+.register {
     padding-left: 2px;
 }
 
-.container{
+.container {
     width: 320px;
     padding-top: 10px;
     padding-bottom: 10px;
@@ -52,12 +52,12 @@ h1{
     top: 50%;
     left: 50%;
     position: absolute;
-    transform: translate(-50%,-50%);
+    transform: translate(-50%, -50%);
     border: 0.1px solid lightgray;
     border-radius: 5px;
-} 
+}
 
-.center{
+.center {
     margin: auto;
     width: 100%;
     text-align: center;
