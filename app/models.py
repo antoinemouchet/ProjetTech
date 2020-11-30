@@ -16,13 +16,6 @@ class User(Base):
     pseudo = Column(String)
     password = Column(String)
 
-
-    def is_authenticated(self):
-        return self.authenticated
-
-    def is_active(self):
-        return self.enabled
-
     def is_anonymous(self):
         return False
 
