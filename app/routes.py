@@ -6,7 +6,8 @@ from flask import jsonify, redirect, request
 from sqlalchemy.sql.expression import func
 import sqlalchemy.sql
 
-import uuid, os
+import uuid
+import os
 
 from app import app
 from app.models import *
@@ -44,7 +45,9 @@ def footer():
 
     return footer.render()
 
+
 @app.route('/list/<int:id>', methods=['GET'])
+@login_required
 def watch_list_get(id):
     """
     Obtain watch list of user with given id.
@@ -54,22 +57,24 @@ def watch_list_get(id):
     watchlist = session.query(WatchList).filter_by(user_id=id).first()
     if not watchlist:
         if id == current_user.id:
-            watchlist = WatchList(user_id = current_user.id)
+            watchlist = WatchList(user_id=current_user.id)
             session.add(watchlist)
             session.commit()
         else:
-            return jsonify({'error': 'watchlist not found.'})  # watchlist not exist
-    
+            # watchlist not exist
+            return jsonify({'error': 'watchlist not found.'})
+
     shows = session.query(ShowList).filter_by(watchlist_id=watchlist.id).all()
     # [{id:,nom:,description:,img:,file:,tags:,}, ...]
     showsList = []
     for show in shows:
         show = session.query(Show).filter_by(id=show.show_id).first()
-        showsList.append({'id':show.id, 'name':show.name, 'desc':show.desc,'img':show.img,'video':show.video,'tags':show.tags})
-    return jsonify({'data' :showsList})
+        showsList.append({'id': show.id, 'name': show.name, 'desc': show.desc,
+                          'img': show.img, 'video': show.video, 'tags': show.tags})
+    return jsonify({'data': showsList})
 
 
-@app.route('/list/<int:id>', methods=['POST']) 
+@app.route('/list/<int:id>', methods=['POST'])
 @login_required
 def watch_list_post(id):
     """
@@ -93,11 +98,12 @@ def watch_list_post(id):
             for show_id in add:
                 show = session.query(Show).filter_by(id=show_id).first()
                 if show and not session.query(ShowList).filter_by(watchlist_id=watchlist.id, show_id=show_id).first():
-                    session.add(ShowList(watchlist_id=watchlist.id, show_id=show_id))
+                    session.add(
+                        ShowList(watchlist_id=watchlist.id, show_id=show_id))
                     session.commit()
-        
 
     return "success"
+
 
 @app.route('/list/', methods=['GET'])
 @login_required
@@ -108,7 +114,7 @@ def watch_list_main_get():
     Author: Jérémie Dierickx
     """
     watchlist = env.get_template('watchlists.html')
-    return header("Watch Party") + watchlist.render(user_id = current_user.id) + footer()
+    return header("Watch Party") + watchlist.render(user_id=current_user.id) + footer()
 
 
 @app.route('/comparison', methods=['GET'])
@@ -120,11 +126,11 @@ def comparison_main_get():
     Author: Jérémie Dierickx
     """
     comparison = env.get_template('compare.html')
-    return header("Watch Party") + comparison.render(user_id = current_user.id) + footer()
+    return header("Watch Party") + comparison.render(user_id=current_user.id) + footer()
 
-    
 
 @app.route('/new-show/', methods=['GET', 'POST'])
+@login_required
 def show_create():
     """
     Create a new show.
@@ -149,13 +155,17 @@ def show_create():
         # Check that each path exists (therefore each content exists)
         if new_show_file["img"]:
             img_extension = new_show_file["img"].filename.split('.')[1]
-            new_show.img = os.path.join( "static", "img", path_to_show_img + "." + img_extension)
-            new_show_file["img"].save(os.path.join("static", "img", path_to_show_img + "." +  img_extension))
+            new_show.img = os.path.join(
+                "static", "img", path_to_show_img + "." + img_extension)
+            new_show_file["img"].save(os.path.join(
+                "static", "img", path_to_show_img + "." + img_extension))
 
         if new_show_file["video"]:
             video_extension = new_show_file["video"].filename.split('.')[1]
-            new_show.video = os.path.join("static", "video", path_to_show_video + "." + video_extension)
-            new_show_file["video"].save(os.path.join("static", "video", path_to_show_video + "." +  video_extension))
+            new_show.video = os.path.join(
+                "static", "video", path_to_show_video + "." + video_extension)
+            new_show_file["video"].save(os.path.join(
+                "static", "video", path_to_show_video + "." + video_extension))
 
         session.add(new_show)
         session.commit()
@@ -168,6 +178,7 @@ def show_create():
 
 
 @app.route('/shows/', methods=['GET'])
+@login_required
 def show_all():
     """
     Get every existing show.
@@ -191,12 +202,14 @@ def show_all():
 
 
 @app.route('/show-list/', methods=["GET"])
+@login_required
 def display_shows():
     shows = env.get_template('shows.html')
     return header("Shows") + shows.render() + footer()
 
-  
+
 @app.route('/show/<int:show_id>', methods=['GET'])
+@login_required
 def show_get(show_id):
     """
     Get information about a specific show.
@@ -217,12 +230,16 @@ def show_get(show_id):
     else:
         return redirect("/shows/")
 
+
 @app.route('/show-detail/<int:show_id>', methods=["GET"])
+@login_required
 def show_view(show_id):
     show = env.get_template('show-detail.html')
     return header("Details") + show.render(show=show_id) + footer()
 
+
 @app.route('/recommendations/<int:id>', methods=['GET'])
+@login_required
 def recommendations_get(id):
     """
     Get recommendations for a specific user.
@@ -256,18 +273,22 @@ def recommendations_get(id):
                 :4]  # maybe needs optimization ?
             recommendationsList = {}
             print(sorted_3_tags[0])
-            for show in session.query(Show).filter(Show.tags.contains(sorted_3_tags[0])).order_by(func.random()).limit(10):  # max 10 recommendation for the most common tag.
-                    recommendationsList[show.id] = {'id':show.id, 'name':show.name, 'desc':show.desc,'img':show.img,'video':show.video,'tags':show.tags}
+            # max 10 recommendation for the most common tag.
+            for show in session.query(Show).filter(Show.tags.contains(sorted_3_tags[0])).order_by(func.random()).limit(10):
+                recommendationsList[show.id] = {
+                    'id': show.id, 'name': show.name, 'desc': show.desc, 'img': show.img, 'video': show.video, 'tags': show.tags}
             index = 1
             while index < len(sorted_3_tags):
-                for show in session.query(Show).filter(Show.tags.contains(sorted_3_tags[index])).order_by(func.random()).limit(4): # max 4 for others.
-                    recommendationsList[show.id] = {'id':show.id, 'name':show.name, 'desc':show.desc,'img':show.img,'video':show.video,'tags':show.tags}
+                # max 4 for others.
+                for show in session.query(Show).filter(Show.tags.contains(sorted_3_tags[index])).order_by(func.random()).limit(4):
+                    recommendationsList[show.id] = {
+                        'id': show.id, 'name': show.name, 'desc': show.desc, 'img': show.img, 'video': show.video, 'tags': show.tags}
                 index += 1
-            
-            
-            return jsonify({'recommendations' : recommendationsList})
 
-    return jsonify({'error' : 'user not exist'})  
+            return jsonify({'recommendations': recommendationsList})
+
+    return jsonify({'error': 'user not exist'})
+
 
 @app.route('/recommendations', methods=['GET'])
 @login_required
@@ -278,7 +299,8 @@ def recommendations_main_get():
     Author: Jérémie Dierickx
     """
     recommendations = env.get_template('recommendations.html')
-    return header("Watch Party") + recommendations.render(user_id = current_user.id) + footer()
+    return header("Watch Party") + recommendations.render(user_id=current_user.id) + footer()
+
 
 @app.route('/login/', methods=['POST', 'GET'])
 def login():
@@ -306,7 +328,7 @@ def login():
         return render_template('login.html', form=form)
 
 
-@app.route('/login/', methods=['POST'])
+@app.route('/logout/', methods=['GET'])
 @login_required
 def logout_post():
     """
@@ -315,7 +337,7 @@ def logout_post():
     Author: Sémy Drif
     """
     logout_user()
-    return redirect(url_for('login_post'))
+    return redirect('/', 302)
 
 
 @app.route('/users/', methods=['POST'])
@@ -356,13 +378,13 @@ def register_form():
 
 
 @app.route('/users/', methods=['GET'])
+@login_required
 def users_get():
     """
     Get all users.
 
     Author: Sémy Drif
     """
-    form = Register()
     users = session.query(User).all()
     data = []
     for u in users:
@@ -374,6 +396,7 @@ def users_get():
 
 
 @app.route('/friends/<int:tag>', methods=["GET"])
+@login_required
 def friends_get(tag):
     """
     Get all friends of user
@@ -404,6 +427,7 @@ def friends_get(tag):
 
 
 @app.route('/friends/<int:tag>', methods=["DELETE"])
+@login_required
 def friends_delete(tag):
     """
     Delete a specific friends for a user.
@@ -429,6 +453,7 @@ def friends_delete(tag):
 
 
 @app.route('/friends/<int:tag>', methods=["POST"])
+@login_required
 def friends_add(tag):
     """
     Add a new friend to a user.
@@ -466,14 +491,15 @@ def friends_add(tag):
         })
 
 
-@ app.route('/friends/', methods=['GET'])
-@ login_required
+@app.route('/friends/', methods=['GET'])
+@login_required
 def friends_form():
     friends = env.get_template('friends.html')
     return header("My Friends") + friends.render(user_id=current_user.get_id()) + footer()
 
 
-@ app.route('/session/<tag>', methods=['GET'])
+@app.route('/session/<tag>', methods=['GET'])
+@login_required
 def session_sync(tag):
     """
     Get information about watchparty.
@@ -496,7 +522,8 @@ def session_sync(tag):
         })
 
 
-@ app.route('/session/<tag>/', methods=['PATCH'])
+@app.route('/session/<tag>/', methods=['PATCH'])
+@login_required
 def session_update(tag):
     """
     Update information about a watchparty.
@@ -525,7 +552,8 @@ def session_update(tag):
         })
 
 
-@ app.route('/session/', methods=['POST'])
+@app.route('/session/', methods=['POST'])
+# @login_required
 def session_create():
     """
     Create a new watchparty.
@@ -566,12 +594,14 @@ def session_create():
 
 
 @app.route('/watch/<tag>', methods=['GET'])
+@login_required
 def watch(tag):
     form = env.get_template('watch.html')
     return header("Watch Party") + form.render(watch_party_tag=tag) + footer()
 
 
 @app.route('/watch-party/', methods=['GET'])
+@login_required
 def watch_party_form():
     form = env.get_template('watch-party.html')
     return header("Find a Watch Party") + form.render() + footer()
