@@ -24,12 +24,10 @@ function complete(text, input_element, autocomplete_element) {
 }
 
 function addAutoCompleteLine(text, input_element, autocomplete_element) {
-    let line = document.createElement('input');
-    line.type = 'button';
     let textlink = document.createElement('a');
     textlink.href = '#';
-    textlink.onclick = function () { complete(text, input_element, autocomplete_element); return false; };
-    line.value = text;
-    textlink.appendChild(line);
+    textlink.className = 'dropdown-item';
+    textlink.onclick = function(){complete(text, input_element, autocomplete_element); return false;};
+    textlink.innerHTML = text;
     autocomplete_element.appendChild(textlink);
 }
