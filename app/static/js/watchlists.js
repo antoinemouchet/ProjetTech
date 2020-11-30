@@ -43,9 +43,12 @@ function rowShow(pictureLink, showName, showPath, showTag, showId)
     let actions = document.createElement('td');
 
     let picture = document.createElement('img');
-    picture.src = pictureLink;
+    picture.src = '/' + pictureLink;
+    picture.width = 128;
     logo.appendChild(picture);
 
+
+    // TODO: here to create watch party
     let showLink = document.createElement('a');
     showLink.href = showPath;
     let nametxt = document.createTextNode(showName);
