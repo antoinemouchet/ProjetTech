@@ -524,3 +524,9 @@ def watch(tag):
 def watch_party_form():
     form = env.get_template('watch-party.html')
     return header("Find a Watch Party") + form.render() + footer()
+
+
+@app.route('/', methods=['GET'])
+def front_page():
+    page = env.get_template('front-page.html')
+    return page.render() + footer()
