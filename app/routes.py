@@ -124,42 +124,47 @@ def comparison_main_get():
 
     
 
-@app.route('/shows/', methods=['POST'])
+@app.route('/new-show/', methods=['GET', 'POST'])
 def show_create():
     """
     Create a new show.
 
     Author: Antoine Mouchet
     """
-    new_show_data = request.form
-    new_show_file = request.files
+    if request.method == "POST":
+        new_show_data = request.form
+        new_show_file = request.files
 
-    # Store image and video in static/img and static/video respectively
-    # Get the file from the request then store it?
+        # Store image and video in static/img and static/video respectively
+        # Get the file from the request then store it?
 
-    new_show = Show(
-        name=new_show_data["name"], desc=new_show_data["desc"],
-        tags=new_show_data["tags"])
+        new_show = Show(
+            name=new_show_data["name"], desc=new_show_data["desc"],
+            tags=new_show_data["tags"])
 
-    # Generate random files names for file of the show
-    path_to_show_img = str(uuid.uuid4())
-    path_to_show_video = str(uuid.uuid4())
+        # Generate random files names for file of the show
+        path_to_show_img = str(uuid.uuid4())
+        path_to_show_video = str(uuid.uuid4())
 
-    img_extension = new_show_file["img"].filename.split('.')[1]
-    video_extension = new_show_file["video"].filename.split('.')[1]
+        # Check that each path exists (therefore each content exists)
+        if new_show_file["img"]:
+            img_extension = new_show_file["img"].filename.split('.')[1]
+            new_show.img = os.path.join( "static", "img", path_to_show_img + "." + img_extension)
+            new_show_file["img"].save(os.path.join("static", "img", path_to_show_img + "." +  img_extension))
 
-    # Check that each path exists (therefore each content exists)
-    if new_show_file["img"]:
-        new_show.img = os.path.join(os.getcwd(), "static", "img", path_to_show_img + "." + img_extension)
-        new_show_file["img"].save(os.path.join(os.getcwd(), "static", "img", path_to_show_img + "." +  img_extension))
+        if new_show_file["video"]:
+            video_extension = new_show_file["video"].filename.split('.')[1]
+            new_show.video = os.path.join("static", "video", path_to_show_video + "." + video_extension)
+            new_show_file["video"].save(os.path.join("static", "video", path_to_show_video + "." +  video_extension))
 
-    if new_show_file["video"]:
-        new_show.video = os.path.join(os.getcwd(), "static", "video", path_to_show_video + "." + video_extension)
-        new_show_file["video"].save(os.path.join(os.getcwd(), "static", "video", path_to_show_video + "." +  video_extension))
+        session.add(new_show)
+        session.commit()
 
-    session.add(new_show)
-    session.commit()
-    return "success"
+        return redirect("/show-list/")
+
+    else:
+        newShow = env.get_template('show-form.html')
+        return header("Add a show") + newShow.render() + footer()
 
 
 @app.route('/shows/', methods=['GET'])
@@ -172,6 +177,7 @@ def show_all():
     shows = session.query(Show).all()
 
     data = []
+
     for show in shows:
         data.append({
             "name": show.name,
@@ -183,7 +189,14 @@ def show_all():
 
     return jsonify(data)
 
-@app.route('/shows/<int:id>', methods=['GET'])
+
+@app.route('/show-list/', methods=["GET"])
+def display_shows():
+    shows = env.get_template('shows.html')
+    return header("Shows") + shows.render() + footer()
+
+  
+@app.route('/show/<int:show_id>', methods=['GET'])
 def show_get(show_id):
     """
     Get information about a specific show.
@@ -202,8 +215,12 @@ def show_get(show_id):
         })
     # Reaction when show doesn't exist
     else:
-        return redirect("/shows")
+        return redirect("/shows/")
 
+@app.route('/show-detail/<int:show_id>', methods=["GET"])
+def show_view(show_id):
+    show = env.get_template('show-detail.html')
+    return header("Details") + show.render(show=show_id) + footer()
 
 @app.route('/recommendations/<int:id>', methods=['GET'])
 def recommendations_get(id):
@@ -558,3 +575,9 @@ def watch(tag):
 def watch_party_form():
     form = env.get_template('watch-party.html')
     return header("Find a Watch Party") + form.render() + footer()
+
+
+@app.route('/', methods=['GET'])
+def front_page():
+    page = env.get_template('front-page.html')
+    return page.render() + footer()
