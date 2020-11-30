@@ -9,7 +9,9 @@ function C_rowShows(pictureLink, showName)
     
     //picture
     let picture = document.createElement('img');
-    picture.src = pictureLink;
+    picture.src = '/' + pictureLink;
+    picture.style.maxWidth = "128px";
+    picture.style.maxHeight = "128px";
     col.appendChild(picture);
 
     //name

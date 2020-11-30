@@ -12,7 +12,8 @@ function rowShow(pictureLink, showName, showPath, showTag)
     let actions = document.createElement('td');
 
     let picture = document.createElement('img');
-    picture.src = pictureLink;
+    picture.src = '/' + pictureLink;
+    picture.width = 128;
     logo.appendChild(picture);
 
     let showLink = document.createElement('a');

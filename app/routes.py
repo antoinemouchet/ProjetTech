@@ -117,7 +117,7 @@ def watch_list_main_get():
     return header("Watch Party") + watchlist.render(user_id=current_user.id) + footer()
 
 
-@app.route('/comparison', methods=['GET'])
+@app.route('/comparison/', methods=['GET'])
 @login_required
 def comparison_main_get():
     """
