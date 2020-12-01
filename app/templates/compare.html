@@ -11,8 +11,10 @@
     }
 </style>
 <div class="container">
-    <input type="text" id="friend_id" onkeyup="checkvalues('friend_id', 'autocomplete', friends);">
-    <input type="button" value="Get" id="friend" onclick="friend_populateTable(this.id)">
+    <div style="margin: 2px;">
+        <input type="text" id="friend_id" onkeyup="checkvalues('friend_id', 'autocomplete', friends);">
+        <input type="button" class="btn btn-info" value="Get" id="friend" onclick="friend_populateTable(this.id)">
+    </div>
     <div class="input-group mb-3">
         <div id="autocomplete" class="dropdown-menu show"></div>
     </div>
