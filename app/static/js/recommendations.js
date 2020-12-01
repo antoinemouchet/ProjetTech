@@ -21,19 +21,27 @@ function rowShow(pictureLink, showName, showPath, showTag) {
     logo.appendChild(picture);
 
     let showLink = document.createElement('a');
-    showLink.href = showPath;
+    showLink.href = '/' + showPath;
     let nametxt = document.createTextNode(showName);
     showLink.appendChild(nametxt);
     name.appendChild(showLink);
 
     //tags
     let tagsDiv = document.createElement('div');
+
     let tagNames = showTag.split(';');
+    tagNames.sort();
+
     for (tagName of tagNames) {
-        let tagBlock = document.createElement('p');
-        let tagTxt = document.createTextNode(tagName);
-        tagBlock.appendChild(tagTxt);
-        tagsDiv.appendChild(tagBlock);
+        if(tagName.trim() != ""){
+            let tagBlock = document.createElement('button');
+            tagBlock.type = "button";
+            tagBlock.className = "btn btn-secondary btn-sm";
+            tagBlock.innerText = tagName ;
+            tagBlock.style.margin = "1px";
+            tagBlock.style.textTransform = "capitalize";
+            tagsDiv.appendChild(tagBlock);
+        }
     }
     tags.appendChild(tagsDiv);
 

@@ -83,21 +83,28 @@ function rowShow(pictureLink, showName, showPath, showTag, showId) {
     // Tags
     let tagsDiv = document.createElement('div');
     let tagNames = showTag.split(';');
-    for (let tagName of tagNames) {
-        if (tagName != "") {
-            let tagBlock = document.createElement('p');
-            let tagTxt = document.createTextNode(tagName);
-            tagBlock.appendChild(tagTxt);
+    tagNames.sort();
+
+    for (tagName of tagNames) {
+        if(tagName.trim() != ""){
+            let tagBlock = document.createElement('button');
+            tagBlock.type = "button";
+            tagBlock.className = "btn btn-secondary btn-sm";
+            tagBlock.innerText = tagName ;
+            tagBlock.style.margin = "1px";
+            tagBlock.style.textTransform = "capitalize";
             tagsDiv.appendChild(tagBlock);
         }
     }
+
     tags.appendChild(tagsDiv);
 
     // Seen
     let modifySeen = document.createElement('a');
     seen.appendChild(modifySeen);
 
-    let deleteButton = createButton('remove');
+    let deleteButton = createButton('Remove');
+    deleteButton.className = "btn btn-danger";
     deleteButton.onclick = function () { deleteShow(showId) };
     actions.appendChild(deleteButton);
 
@@ -139,6 +146,7 @@ async function getData() {
             InputShowID.min = 0;
             InputShowID.id = 'addShowId';
             let addIdButton = createButton('Add Show');
+            addIdButton.className = "btn btn-info";
             addIdButton.onclick = function () { addShow() };
             displayData.appendChild(InputShowID);
             displayData.appendChild(addIdButton);
@@ -165,6 +173,7 @@ async function createWatchList() {
             InputShowID.min = 0;
             InputShowID.id = 'addShowId';
             let addIdButton = createButton('Add Show');
+            addIdButton.className = "btn btn-info";
             addIdButton.onclick = function () { addRow() };
             displayData.appendChild(InputShowID);
             displayData.appendChild(addIdButton);
