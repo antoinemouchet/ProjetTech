@@ -1,7 +1,6 @@
 from flask_login import login_user, current_user, login_required, logout_user
-from flask import render_template, redirect, url_for, request, flash, jsonify, request
+from flask import render_template, redirect, request, flash, jsonify
 from jinja2 import Template, Environment, PackageLoader, select_autoescape
-from flask import jsonify, redirect, request
 
 from sqlalchemy.sql.expression import func
 import sqlalchemy.sql
