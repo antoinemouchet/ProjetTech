@@ -2,7 +2,6 @@ window.onload = () => {buildPage();}
 
 
 async function buildPage() {
-  
     let data = await fetch('http://localhost:5000/shows/', {
             method: "GET",
             mode: "cors",
@@ -42,7 +41,9 @@ async function buildPage() {
         tags.sort()
         let htmlTags = "";
         for (let i = 0; i < tags.length; i++) {
-            htmlTags += "<button type='button' class='btn btn-secondary btn-sm' style='padding:1px;line-height:150%'> " + tags[i] + " </button> ";        
+            if(tags[i].trim() != ""){
+                htmlTags += "<button type='button' class='btn btn-secondary btn-sm' style='margin:1px;text-transform: capitalize'> " + tags[i] + " </button> ";
+            }      
         }
         
         col3.innerHTML = htmlTags;

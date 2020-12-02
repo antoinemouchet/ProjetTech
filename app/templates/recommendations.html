@@ -1,35 +1,43 @@
 {{ header }}
-         
-        <script>
-            let user_id = {{user_id}};
-        </script>
-        <script src="../static/js/recommendations.js"></script>
-        <style>
-            p {display:inline-block; background-color: rgb(100, 100, 100);padding: 3px;border-radius: 5px;}
-            table td {vertical-align: middle !important;}
-        </style>
-        <div class="container">
-            <div id="container">
-                <h1>Recommendations</h1>
-                <input id="username" type="text">
-                <input type="button" value="Get" onclick="populate_by_username()">
-                <div id="displayData">
-                    <table class="table text-center">
-                    
-                        <thead>
-                            <tr>
-                                <th>Logo</th>
-                                <th>Name</th>
-                                <th>Tags</th>
-                            </tr>
-                        </thead>
 
-                        <tbody id="tshows">
+<script>
+    let userId = {{ user_id }};
+</script>
+<script src="../static/js/recommendations.js"></script>
+<style>
+    p {
+        display: inline-block;
+        background-color: rgb(100, 100, 100);
+        padding: 3px;
+        border-radius: 5px;
+    }
 
-                        </tbody> 
+    table td {
+        vertical-align: middle !important;
+    }
+</style>
+<div class="container">
+    <div id="container">
+        <h1>Recommendations</h1>
+        <input id="username" type="text">
+        <input type="button" value="Get" onclick="populate_by_username()">
+        <div id="displayData">
+            <table class="table text-center">
 
-                    </table>
-                </div>
-            </div>
+                <thead>
+                    <tr>
+                        <th>Logo</th>
+                        <th>Name</th>
+                        <th>Tags</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tshows">
+
+                </tbody>
+
+            </table>
         </div>
+    </div>
+</div>
 {{ footer }}

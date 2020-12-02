@@ -1,12 +1,14 @@
-window.onload = () => {buildPage();}
+window.onload = () => { buildPage(); }
 
 
+/**
+ * Fetch information about a specific show and build page based on that.
+ */
 async function buildPage() {
-  
     let data = await fetch('http://localhost:5000/show/' + showID, {
-            method: "GET",
-            mode: "cors",
-            headers: { "Content-Type": "application/json" },
+        method: "GET",
+        mode: "cors",
+        headers: { "Content-Type": "application/json" },
     });
     let show = await data.json();
 
@@ -43,7 +45,7 @@ async function buildPage() {
     // Create a second colum
     let descCol = document.createElement("div");
     descCol.className = "col-8";
-    
+
 
     let desc = document.createElement("p");
     desc.innerHTML = "<b>Description:</b> " + show["desc"];
@@ -54,13 +56,15 @@ async function buildPage() {
     tags.sort();
     let htmlTags = "";
     for (let i = 0; i < tags.length; i++) {
-        htmlTags += "<button type='button' class='btn btn-secondary'> " + tags[i] + " </button> ";        
+        if(tags[i].trim() != ""){
+            htmlTags += "<button type='button' class='btn btn-secondary' style='margin:1px;text-transform: capitalize'> " + tags[i] + " </button> ";
+        } 
     }
 
     let tagsButton = document.createElement("div");
     tagsButton.innerHTML = "<b>Tags:</b> " + htmlTags;
     tagsButton.style.textAlign = "left";
-    tagsButton.style.padding = "3px";
+    tagsButton.style.margin = "3px";
     tagsButton.style.marginTop = "5cm";
 
     // Add description to column

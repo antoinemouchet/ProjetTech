@@ -40,4 +40,4 @@ class Register(FlaskForm):
                                           Regexp(r"^[a-zA-Z0-9]+$",
                                                  message="Can t contains spaces or special characters")])
 
-    submit = SubmitField("submit")
+    submit = SubmitField("Submit")

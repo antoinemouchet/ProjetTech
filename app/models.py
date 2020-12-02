@@ -39,6 +39,7 @@ class WatchParty(Base):
     id = Column(String, primary_key=True)
     time = Column(Float)
     state = Column(Boolean)
+    media = Column(String)
 
 
 class WatchPartyParameters(Base):
@@ -54,11 +55,6 @@ class WatchPartyBlackList(Base):
     parameters = Column(String, ForeignKey(
         'watchpartyparameters.id'))
     user = Column(Integer, ForeignKey('users.id'))
-
-
-@login_manager.user_loader
-def load_user(userid):
-    return session.query(User).get(int(userid))
 
 
 class WatchList(Base):
@@ -85,6 +81,7 @@ class FriendShip(Base):
     user_a = Column(Integer, ForeignKey('users.id'))
     user_b = Column(Integer, ForeignKey('users.id'))
 
+
 class Show(Base):
     # Table name
     __tablename__ = "show"
@@ -102,6 +99,12 @@ class Show(Base):
 
     def get_name(self):
         return self.name
+
+
+@login_manager.user_loader
+def load_user(userid):
+    return session.query(User).get(int(userid))
+
 
 Base.metadata.create_all(engine)
 

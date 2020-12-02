@@ -1,43 +1,51 @@
 {{ header }}
-         
-        <script>
-            let user_id = {{user_id}};
-        </script>
-        <script src="../static/js/watchlists.js"></script>
-        <script src="../static/js/autocomplete.js"></script>
-        <style>
-            p {display:inline-block; background-color: rgb(100, 100, 100);padding: 3px;border-radius: 5px;}
-            table td {vertical-align: middle !important;}
-        </style>
-        <div class="container">
-            <div id="container">
-                <h1>Watchlist</h1>
-                <input id="watchId" type="text">
-                <input type="button" value="Get" onclick="getData()">
-                <div id="displayData">
-                    <table class="table text-center align-middle">
-                    
-                        <thead>
-                            <tr>
-                                <th>Logo</th>
-                                <th>Name</th>
-                                <th>Tags</th>
-                                <th>Seen</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
 
-                        <tbody id="tshows">
+<script>
+    let user_id = {{ user_id }};
+</script>
+<script src="../static/js/watchlists.js"></script>
+<script src="../static/js/autocomplete.js"></script>
+<style>
+    p {
+        display: inline-block;
+        background-color: rgb(100, 100, 100);
+        padding: 3px;
+        border-radius: 5px;
+    }
 
-                        </tbody> 
+    table td {
+        vertical-align: middle !important;
+    }
+</style>
+<div class="container">
+    <div id="container">
+        <h1>Watchlist</h1>
+        <input id="watchId" type="text">
+        <input type="button" value="Get" onclick="getData()">
+        <div id="displayData">
+            <table class="table text-center align-middle">
 
-                    </table>
-                    <input type="text" id="addShowId" onkeyup="checkvalues('addShowId', 'autocomplete', Shows);">
-                    <input type="button" value="Add Show" onclick="addRow();">
-                    <div class="input-group mb-3">
-                        <div id="autocomplete" class="dropdown-menu show"></div>
-                    </div>
-                </div>
+                <thead>
+                    <tr>
+                        <th>Logo</th>
+                        <th>Name</th>
+                        <th>Tags</th>
+                        <th>Seen</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tshows">
+
+                </tbody>
+
+            </table>
+            <input type="text" id="addShowId" onkeyup="checkvalues('addShowId', 'autocomplete', shows);">
+            <input type="button" class="btn btn-info" value="Add Show" onclick="addShow();">
+            <div class="input-group mb-3">
+                <div id="autocomplete" class="dropdown-menu show"></div>
             </div>
         </div>
+    </div>
+</div>
 {{ footer }}

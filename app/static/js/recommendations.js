@@ -1,7 +1,11 @@
 let users = {};
 
-function rowShow(pictureLink, showName, showPath, showTag)
-{
+window.onload = function () {
+    fetchUsers();
+    fetchAndPopulate(userId);
+};
+
+function rowShow(pictureLink, showName, showPath, showTag) {
     let row = document.createElement('tr');
     //elements
     let logo = document.createElement('td');
@@ -17,22 +21,29 @@ function rowShow(pictureLink, showName, showPath, showTag)
     logo.appendChild(picture);
 
     let showLink = document.createElement('a');
-    showLink.href = showPath;
+    showLink.href = '/' + showPath;
     let nametxt = document.createTextNode(showName);
     showLink.appendChild(nametxt);
     name.appendChild(showLink);
 
     //tags
-    let tags_div = document.createElement('div');
-    let tag_names = showTag.split(';');
-    for(tag_name of tag_names)
-    {
-        let tag_block = document.createElement('p');
-        let tag_txt = document.createTextNode(tag_name);
-        tag_block.appendChild(tag_txt);
-        tags_div.appendChild(tag_block);
+    let tagsDiv = document.createElement('div');
+
+    let tagNames = showTag.split(';');
+    tagNames.sort();
+
+    for (tagName of tagNames) {
+        if(tagName.trim() != ""){
+            let tagBlock = document.createElement('button');
+            tagBlock.type = "button";
+            tagBlock.className = "btn btn-secondary btn-sm";
+            tagBlock.innerText = tagName ;
+            tagBlock.style.margin = "1px";
+            tagBlock.style.textTransform = "capitalize";
+            tagsDiv.appendChild(tagBlock);
+        }
     }
-    tags.appendChild(tags_div);
+    tags.appendChild(tagsDiv);
 
     row.appendChild(logo);
     row.appendChild(name);
@@ -41,62 +52,53 @@ function rowShow(pictureLink, showName, showPath, showTag)
     return row;
 }
 
-function populateTable(list)
-{
+function populateTable(list) {
     let tbody = document.getElementById('tshows');
     tbody.innerHTML = null;
-    for(let show of Object.values(list))
-    {
+    for (let show of Object.values(list)) {
         tbody.appendChild(rowShow(show.img, show.name, show.video, show.tags));
     }
 }
 
 async function fetchRecommendations(userId) {
-  
+
     let data = await fetch('http://localhost:5000/recommendations/' + userId, {
-            method: "GET",
-            mode: "cors",
-            headers: { "Content-Type": "application/json" },
+        method: "GET",
+        mode: "cors",
+        headers: { "Content-Type": "application/json" },
     });
     return await data.json();
 }
 
-async function fetch_and_populate(userId) {
+async function fetchAndPopulate(userId) {
     let recommendations = await fetchRecommendations(userId);
-    if(recommendations.error) {
+    if (recommendations.error) {
         alert(recommendations.error);
     }
     else {
-        populateTable(recommendations.recommendations);      
+        populateTable(recommendations.recommendations);
     }
 }
 
-async function populate_by_username() {
+async function populateByUsername() {
     let user = users[document.getElementById('username').value.toLowerCase()];
-    if(user)
-        await fetch_and_populate(user);
+    if (user)
+        await fetchAndPopulate(user);
     else
         alert('user not exist');
 }
 
 async function fetchUsers() {
-  
+
     let data = await fetch('http://localhost:5000/users', {
-            method: "GET",
-            mode: "cors",
-            headers: { "Content-Type": "application/json" },
+        method: "GET",
+        mode: "cors",
+        headers: { "Content-Type": "application/json" },
     });
-    let users_data = await data.json();
-    for(let user of users_data)
-    {
+    let usersData = await data.json();
+    for (let user of usersData) {
         users[user.pseudo.toLowerCase()] = user.id;
     }
 
-    
+
 }
-
-
-window.onload = function(){
-    fetchUsers();
-    fetch_and_populate(user_id);
-};

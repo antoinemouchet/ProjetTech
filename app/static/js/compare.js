@@ -1,26 +1,22 @@
 let friends = {};
 
-function C_rowShows(pictureLink, showName)
-{
+function C_rowShows(pictureLink, showName) {
     let row = document.createElement('tr');
-    //elements
+    // Elements
     let col = document.createElement('td');
-   
-    
-    //picture
+
+    // Picture
     let picture = document.createElement('img');
     picture.src = '/' + pictureLink;
     picture.style.maxWidth = "128px";
     picture.style.maxHeight = "128px";
     col.appendChild(picture);
 
-    //name
+    // Name
     let Name = document.createElement('p');
     let nametxt = document.createTextNode(showName);
     Name.appendChild(nametxt);
     col.appendChild(Name);
-
-
 
     row.appendChild(col);
 
@@ -28,57 +24,50 @@ function C_rowShows(pictureLink, showName)
 }
 
 
-async function C_populateTable(userId, tbodyId)
-{   
+async function C_populateTable(userId, tbodyId) {
     let json = await fetchData(userId);
-    if(json.error)
-    {
-            alert(json.error);
-            return;
+    if (json.error) {
+        alert(json.error);
+        return;
     }
     let tbody = document.getElementById(tbodyId);
     tbody.innerHTML = null;
-    for(let show of json.data)
-    {
+    for (let show of json.data) {
         tbody.appendChild(C_rowShows(show.img, show.name));
     }
 }
 
-async function friend_populateTable(type)
-{
-    let friendId = friends[document.getElementById(type+'_id').value];
-    if(friendId)
-        C_populateTable(friendId, type+'_table');
+async function friend_populateTable(type) {
+    let friendId = friends[document.getElementById(type + '_id').value];
+    if (friendId)
+        C_populateTable(friendId, type + '_table');
 
 }
 
 async function fetchData(userId) {
-  
+
     let data = await fetch('http://localhost:5000/list/' + userId, {
-            method: "GET",
-            mode: "cors",
-            headers: { "Content-Type": "application/json" },
+        method: "GET",
+        mode: "cors",
+        headers: { "Content-Type": "application/json" },
     });
     return await data.json();
 }
 
 async function fetchFriends() {
-  
-    let data = await fetch('http://localhost:5000/friends/'+ user_id, {
-            method: "GET",
-            mode: "cors",
-            headers: { "Content-Type": "application/json" },
+
+    let data = await fetch('http://localhost:5000/friends/' + user_id, {
+        method: "GET",
+        mode: "cors",
+        headers: { "Content-Type": "application/json" },
     });
     let friends_data = await data.json();
-    for(let friend of friends_data.friends)
-    {
+    for (let friend of friends_data.friends) {
         friends[friend.pseudo.toLowerCase()] = friend.id;
     }
-
-    
 }
 
-window.onload = function(){
+window.onload = function () {
     fetchFriends();
-    C_populateTable(user_id, 'me_table');  
+    C_populateTable(user_id, 'me_table');
 };

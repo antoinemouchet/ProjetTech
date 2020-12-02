@@ -1,35 +1,41 @@
 {{ header }}
-         
-        <script>
-            let user_id = {{user_id}};
-        </script>
-        <script src="../static/js/compare.js"></script>
-        <script src="../static/js/autocomplete.js"></script>
-        <style>table td {vertical-align: middle !important;}</style>
-        <div class="container">
-            <input type="text" id="friend_id" onkeyup="checkvalues('friend_id', 'autocomplete', friends);">
-            <input type="button" value="Get" id="friend" onclick="friend_populateTable(this.id)">
-            <div class="input-group mb-3">
-                  <div id="autocomplete" class="dropdown-menu show"></div>
-            </div>
-            <table class="table text-center d-inline align-middle">
-                <thead>
-                    <tr>
-                        <th>My list</th>
-                    </tr>
-                </thead>
-                <tbody id="me_table">
-                </tbody>
-            </table>
-            
-            <table class="table text-center d-inline align-middle">
-                <thead>
-                    <tr>
-                        <th>My friend's list</th>
-                    </tr>
-                </thead>
-                <tbody id="friend_table">
-                </tbody>
-            </table>
-        </div>
+
+<script>
+    let user_id = {{ user_id }};
+</script>
+<script src="../static/js/compare.js"></script>
+<script src="../static/js/autocomplete.js"></script>
+<style>
+    table td {
+        vertical-align: middle !important;
+    }
+</style>
+<div class="container">
+    <div style="margin: 2px;">
+        <input type="text" id="friend_id" onkeyup="checkvalues('friend_id', 'autocomplete', friends);">
+        <input type="button" class="btn btn-info" value="Get" id="friend" onclick="friend_populateTable(this.id)">
+    </div>
+    <div class="input-group mb-3">
+        <div id="autocomplete" class="dropdown-menu show"></div>
+    </div>
+    <table class="table text-center d-inline align-middle">
+        <thead>
+            <tr>
+                <th>My list</th>
+            </tr>
+        </thead>
+        <tbody id="me_table">
+        </tbody>
+    </table>
+
+    <table class="table text-center d-inline align-middle">
+        <thead>
+            <tr>
+                <th>My friend's list</th>
+            </tr>
+        </thead>
+        <tbody id="friend_table">
+        </tbody>
+    </table>
+</div>
 {{ footer }}

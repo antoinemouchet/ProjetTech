@@ -1,78 +1,111 @@
 
-let changes = {add : [],  delete : []}
+let changes = { add: [], delete: [] }
 let compareMode = false;
-let Shows = {};
+let shows = {};
 
-function createButton(value)
-{
-	let button = document.createElement('input');
-	button.type = 'button';
-	button.value = value;
-	return button;
+/**
+ * Create an HTML button with a specified text.
+ * @param {String} value Text of the button.
+ */
+function createButton(value) {
+    let button = document.createElement('input');
+    button.type = 'button';
+    button.value = value;
+    return button;
 }
 
-function deleteRow(showId)
-{
+/**
+ * Delete a show by adding them as a delete change.
+ * @param {Number} showId Id of show to delete.
+ */
+function deleteShow(showId) {
     changes.delete.push(showId);
     sendChanges();
 }
 
-
-function addRow()
-{
-    let show_name = document.getElementById('addShowId').value;
-    let show_id = Shows[show_name];
-    if(show_id){
-        changes.add.push(show_id);
+/**
+ * Add a show by adding the value of input entry as an add change.
+ */
+function addShow() {
+    let showName = document.getElementById('addShowId').value;
+    let showId = shows[showName];
+    if (showId) {
+        // Get real id from name
+        changes.add.push(showId);
         sendChanges();
-
     }
 }
 
+async function createAndJoinWatchParty(showId) {
+    // Create a watch party
+    let data = await fetch('http://localhost:5000/session/' + showId, {
+        method: "POST",
+        mode: "cors",
+    });
 
+    // Retrieve watch party id
+    let id = (await data.json())['id'];
 
-function rowShow(pictureLink, showName, showPath, showTag, showId)
-{
+    // Join watch party
+    location.href = "http://localhost:5000/watch/" + id;
+}
+
+function rowShow(pictureLink, showName, showPath, showTag, showId) {
     let row = document.createElement('tr');
-    //elements
-    let logo = document.createElement('td');
-    let name = document.createElement('td');
-    let tags = document.createElement('td');
-    let seen = document.createElement('td');
-    //actions
-    let actions = document.createElement('td');
 
+    // Image of current show
+    let logo = document.createElement('td');
     let picture = document.createElement('img');
     picture.src = '/' + pictureLink;
     picture.width = 128;
     logo.appendChild(picture);
 
+    // Information of current show
+    let name = document.createElement('td');
+    let tags = document.createElement('td');
+    let seen = document.createElement('td');
 
-    // TODO: here to create watch party
+    // Actions
+    let actions = document.createElement('td');
+
+    // Create a watch party
     let showLink = document.createElement('a');
-    showLink.href = showPath;
-    let nametxt = document.createTextNode(showName);
-    showLink.appendChild(nametxt);
+    // showLink.href = '/session/' + showId;
+    showLink.href = '#';
+    showLink.onclick = () => {
+        createAndJoinWatchParty(showId);
+    }
+
+    let nameTxt = document.createTextNode(showName);
+    showLink.appendChild(nameTxt);
     name.appendChild(showLink);
 
-    //tags
-    let tags_div = document.createElement('div');
-    let tag_names = showTag.split(';');
-    for(tag_name of tag_names)
-    {
-        let tag_block = document.createElement('p');
-        let tag_txt = document.createTextNode(tag_name);
-        tag_block.appendChild(tag_txt);
-        tags_div.appendChild(tag_block);
-    }
-    tags.appendChild(tags_div);
+    // Tags
+    let tagsDiv = document.createElement('div');
+    let tagNames = showTag.split(';');
+    tagNames.sort();
 
-    //seen
+    for (tagName of tagNames) {
+        if(tagName.trim() != ""){
+            let tagBlock = document.createElement('button');
+            tagBlock.type = "button";
+            tagBlock.className = "btn btn-secondary btn-sm";
+            tagBlock.innerText = tagName ;
+            tagBlock.style.margin = "1px";
+            tagBlock.style.textTransform = "capitalize";
+            tagsDiv.appendChild(tagBlock);
+        }
+    }
+
+    tags.appendChild(tagsDiv);
+
+    // Seen
     let modifySeen = document.createElement('a');
     seen.appendChild(modifySeen);
 
-    let deleteButton = createButton('remove');
-    deleteButton.onclick = function(){deleteRow(showId)};
+    let deleteButton = createButton('Remove');
+    deleteButton.className = "btn btn-danger";
+    deleteButton.onclick = function () { deleteShow(showId) };
     actions.appendChild(deleteButton);
 
     row.appendChild(logo);
@@ -84,119 +117,118 @@ function rowShow(pictureLink, showName, showPath, showTag, showId)
     return row;
 }
 
-function populateTable(list)
-{
+function populateTable(list) {
     let tbody = document.getElementById('tshows');
     tbody.innerHTML = null;
-    for(let show of list)
-    {
+    for (let show of list) {
         tbody.appendChild(rowShow(show.img, show.name, show.video, show.tags, show.id));
     }
 }
 
-
+/**
+ * Fetch data from backend and parse it.
+ */
 async function getData() {
     let watchListId = document.getElementById('watchId').value;
-    if(watchListId >= 0)
-    {
+    if (watchListId >= 0) {
         let json = await fetchData(watchListId);
-        if(json.error)
-        {
+        if (json.error) {
             alert(json.error);
             return;
         }
+        // Draw table
         populateTable(json.data);
 
-        if(document.getElementById('addShowId') == undefined)
-        {
+        if (document.getElementById('addShowId') == undefined) {
             let displayData = document.getElementById('displayData');
             let InputShowID = document.createElement('input');
             InputShowID.type = 'text';
             InputShowID.min = 0;
             InputShowID.id = 'addShowId';
             let addIdButton = createButton('Add Show');
-            addIdButton.onclick = function(){addRow()};
+            addIdButton.className = "btn btn-info";
+            addIdButton.onclick = function () { addShow() };
             displayData.appendChild(InputShowID);
             displayData.appendChild(addIdButton);
         }
 
-    }   
+    }
 }
 
+/**
+ * Tick the backend to force creation of a watch list.
+ */
 async function createWatchList() {
     let watchListId = document.getElementById('watchId').value;
-    if(watchListId >= 0)
-    {
+    if (watchListId >= 0) {
         await fetch('http://localhost:5000/list/', {
-                method: "POST",
-                mode: "cors",
+            method: "POST",
+            mode: "cors",
         });
 
-        if(document.getElementById('addShowId') == undefined)
-        {
+        if (document.getElementById('addShowId') == undefined) {
             let displayData = document.getElementById('displayData');
             let InputShowID = document.createElement('input');
             InputShowID.type = 'text';
             InputShowID.min = 0;
             InputShowID.id = 'addShowId';
             let addIdButton = createButton('Add Show');
-            addIdButton.onclick = function(){addRow()};
+            addIdButton.className = "btn btn-info";
+            addIdButton.onclick = function () { addRow() };
             displayData.appendChild(InputShowID);
             displayData.appendChild(addIdButton);
         }
 
-    }   
+    }
 }
 
 async function sendChanges() {
     let watchListId = document.getElementById('watchId').value;
-    if( watchListId >= 0 && Object.keys(changes).length > 0)
-    {
+    if (watchListId >= 0 && Object.keys(changes).length > 0) {
         await fetch('http://localhost:5000/list/' + watchListId, {
-                method: "POST",
-                mode: "cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(changes),
+            method: "POST",
+            mode: "cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(changes),
         });
-        changes = {add : [],  delete : []}; //reset changes
+        changes = { add: [], delete: [] }; //reset changes
         getData();
 
-    }   
+    }
 }
 
 async function fetchData(watchListId) {
-  
-        let data = await fetch('http://localhost:5000/list/' + watchListId, {
-                method: "GET",
-                mode: "cors",
-                headers: { "Content-Type": "application/json" },
-        });
-        return await data.json();
+
+    let data = await fetch('http://localhost:5000/list/' + watchListId, {
+        method: "GET",
+        mode: "cors",
+        headers: { "Content-Type": "application/json" },
+    });
+    return await data.json();
 }
 
 
 async function fetchShows() {
-  
+
     let data = await fetch('http://localhost:5000/shows/', {
-            method: "GET",
-            mode: "cors",
-            headers: { "Content-Type": "application/json" },
+        method: "GET",
+        mode: "cors",
+        headers: { "Content-Type": "application/json" },
     });
     let shows_data = await data.json();
-    for(let show of shows_data)
-    {
-        Shows[show.name.toLowerCase()] = show.id;
+    for (let show of shows_data) {
+        shows[show.name.toLowerCase()] = show.id;
     }
 
-    
+
 }
 
 
-window.onload = function(){
-    document.getElementById('watchId').value =  user_id;
-    getData();  
+window.onload = function () {
+    document.getElementById('watchId').value = user_id;
+    getData();
     fetchShows();
-    
+
 };
 
 
