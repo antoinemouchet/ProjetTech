@@ -10,4 +10,4 @@ Qui n’a jamais voulu partager ses séries, films et animés préférés avec s
 
 Ce projet a été développé dans le but de **tester nos capacités**. 
 
-S'il venait à être déployé, il est important de noter que nous déclinons toute responsabilité pour le contenu mis en ligne qui ne respecterait pas les droits d'auteur.
+S'il venait à être déployé, il est important de noter que nous déclinons toute responsabilité pour le contenu mis en ligne.
