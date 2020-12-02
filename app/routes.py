@@ -89,7 +89,7 @@ def watch_list_get(id):
                           'img': show.img, 'video': show.video, 'tags': show.tags})
 
     # Return this structure using json
-    return jsonify({'data': showsList})
+    return jsonify({'data': showsList, 'status' : watchlist.status})
 
 
 @app.route('/list/<int:id>', methods=['POST'])
@@ -117,6 +117,8 @@ def watch_list_post(id):
         delete = data['delete']
         # Shows to add to watchlist
         add = data['add']
+        # Status of the watchlist
+        status = data['status']
 
         # Delete ShowList elements
         for show_id in delete:
@@ -134,6 +136,13 @@ def watch_list_post(id):
                     ShowList(watchlist_id=watchlist.id, show_id=show_id))
                 session.commit()
 
+        # Modify the watchlist status
+        if status >= 0 and status < 3:
+            watchlist.status = status
+            session.add(watchlist)
+            session.commit()
+
+
     return "success"
 
 
@@ -146,7 +155,7 @@ def watch_list_main_get():
     Author: Jérémie Dierickx
     """
     watchlist = env.get_template('watchlists.html')
-    return header("Watch List") + watchlist.render(user_id=current_user.id) + footer()
+    return header("Watch List") + watchlist.render(user_name=current_user.pseudo) + footer()
 
 
 @app.route('/comparison/', methods=['GET'])

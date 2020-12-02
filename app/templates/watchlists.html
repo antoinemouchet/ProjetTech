@@ -1,18 +1,11 @@
 {{ header }}
 
 <script>
-    let user_id = {{ user_id }};
+    let user_name = "{{ user_name }}";
 </script>
 <script src="../static/js/watchlists.js"></script>
 <script src="../static/js/autocomplete.js"></script>
 <style>
-    p {
-        display: inline-block;
-        background-color: rgb(100, 100, 100);
-        padding: 3px;
-        border-radius: 5px;
-    }
-
     table td {
         vertical-align: middle !important;
     }
@@ -20,9 +13,19 @@
 <div class="container">
     <div id="container">
         <h1>Watchlist</h1>
-        <input id="watchId" type="text">
-        <input type="button" value="Get" onclick="getData()">
+        <div style="margin: 2px;">
+            <input type="text" id="watchId" onkeyup="checkvalues('watchId', 'autocomplete_users', users);">
+            <input type="button" class="btn btn-info" value="Get" onclick="getData()">
+        </div>
+        <div class="input-group mb-3">
+            <div id="autocomplete_users" class="dropdown-menu"></div>
+        </div>
+
         <div id="displayData">
+            <div style="margin: 2px;">
+                <label for="status">Status :</label>
+                <input type="button" class="btn btn-danger" id="status" value="To see" status=0 onclick="sendStatus();">
+            </div>
             <table class="table text-center align-middle">
 
                 <thead>
@@ -30,7 +33,6 @@
                         <th>Logo</th>
                         <th>Name</th>
                         <th>Tags</th>
-                        <th>Seen</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -43,7 +45,7 @@
             <input type="text" id="addShowId" onkeyup="checkvalues('addShowId', 'autocomplete', shows);">
             <input type="button" class="btn btn-info" value="Add Show" onclick="addShow();">
             <div class="input-group mb-3">
-                <div id="autocomplete" class="dropdown-menu show"></div>
+                <div id="autocomplete" class="dropdown-menu"></div>
             </div>
         </div>
     </div>

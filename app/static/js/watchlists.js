@@ -2,6 +2,8 @@
 let changes = { add: [], delete: [] }
 let compareMode = false;
 let shows = {};
+let statusFormats = {0 : ["To see", "btn btn-danger"], 1 : ["In progress", "btn btn-warning"], 2 : ["Seen", "btn btn-success"]}
+let users = {};
 
 /**
  * Create an HTML button with a specified text.
@@ -50,7 +52,8 @@ async function createAndJoinWatchParty(showId) {
     location.href = "http://localhost:5000/watch/" + id;
 }
 
-function rowShow(pictureLink, showName, showPath, showTag, showId) {
+
+function rowShow(pictureLink, showName, showTag, showId) {
     let row = document.createElement('tr');
 
     // Image of current show
@@ -63,7 +66,6 @@ function rowShow(pictureLink, showName, showPath, showTag, showId) {
     // Information of current show
     let name = document.createElement('td');
     let tags = document.createElement('td');
-    let seen = document.createElement('td');
 
     // Actions
     let actions = document.createElement('td');
@@ -99,10 +101,6 @@ function rowShow(pictureLink, showName, showPath, showTag, showId) {
 
     tags.appendChild(tagsDiv);
 
-    // Seen
-    let modifySeen = document.createElement('a');
-    seen.appendChild(modifySeen);
-
     let deleteButton = createButton('Remove');
     deleteButton.className = "btn btn-danger";
     deleteButton.onclick = function () { deleteShow(showId) };
@@ -111,7 +109,6 @@ function rowShow(pictureLink, showName, showPath, showTag, showId) {
     row.appendChild(logo);
     row.appendChild(name);
     row.appendChild(tags);
-    row.appendChild(seen);
     row.appendChild(actions);
 
     return row;
@@ -121,15 +118,23 @@ function populateTable(list) {
     let tbody = document.getElementById('tshows');
     tbody.innerHTML = null;
     for (let show of list) {
-        tbody.appendChild(rowShow(show.img, show.name, show.video, show.tags, show.id));
+        tbody.appendChild(rowShow(show.img, show.name, show.tags, show.id));
     }
+}
+
+function changeStatus(status) {
+    let statusButton = document.getElementById('status');
+    statusButton.status = status;
+    let statusFormat = statusFormats[status];
+    statusButton.value = statusFormat[0];
+    statusButton.className = statusFormat[1];
 }
 
 /**
  * Fetch data from backend and parse it.
  */
 async function getData() {
-    let watchListId = document.getElementById('watchId').value;
+    let watchListId = users[document.getElementById('watchId').value];
     if (watchListId >= 0) {
         let json = await fetchData(watchListId);
         if (json.error) {
@@ -138,20 +143,8 @@ async function getData() {
         }
         // Draw table
         populateTable(json.data);
-
-        if (document.getElementById('addShowId') == undefined) {
-            let displayData = document.getElementById('displayData');
-            let InputShowID = document.createElement('input');
-            InputShowID.type = 'text';
-            InputShowID.min = 0;
-            InputShowID.id = 'addShowId';
-            let addIdButton = createButton('Add Show');
-            addIdButton.className = "btn btn-info";
-            addIdButton.onclick = function () { addShow() };
-            displayData.appendChild(InputShowID);
-            displayData.appendChild(addIdButton);
-        }
-
+        // Update status button
+        changeStatus(json.status);
     }
 }
 
@@ -159,31 +152,17 @@ async function getData() {
  * Tick the backend to force creation of a watch list.
  */
 async function createWatchList() {
-    let watchListId = document.getElementById('watchId').value;
+    let watchListId = users[document.getElementById('watchId').value];
     if (watchListId >= 0) {
         await fetch('http://localhost:5000/list/', {
             method: "POST",
             mode: "cors",
         });
-
-        if (document.getElementById('addShowId') == undefined) {
-            let displayData = document.getElementById('displayData');
-            let InputShowID = document.createElement('input');
-            InputShowID.type = 'text';
-            InputShowID.min = 0;
-            InputShowID.id = 'addShowId';
-            let addIdButton = createButton('Add Show');
-            addIdButton.className = "btn btn-info";
-            addIdButton.onclick = function () { addRow() };
-            displayData.appendChild(InputShowID);
-            displayData.appendChild(addIdButton);
-        }
-
     }
 }
 
 async function sendChanges() {
-    let watchListId = document.getElementById('watchId').value;
+    let watchListId = users[document.getElementById('watchId').value];
     if (watchListId >= 0 && Object.keys(changes).length > 0) {
         await fetch('http://localhost:5000/list/' + watchListId, {
             method: "POST",
@@ -191,10 +170,18 @@ async function sendChanges() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(changes),
         });
-        changes = { add: [], delete: [] }; //reset changes
+        changes = { add: [], delete: [], status: -1 }; //reset changes
         getData();
 
     }
+}
+
+
+async function sendStatus() {
+    let statusButton = document.getElementById('status');
+    let status = statusButton.status;
+    changes.status = (status+1) % 3;
+    sendChanges();
 }
 
 async function fetchData(watchListId) {
@@ -217,18 +204,31 @@ async function fetchShows() {
     });
     let shows_data = await data.json();
     for (let show of shows_data) {
-        shows[show.name.toLowerCase()] = show.id;
+        shows[show.name] = show.id;
     }
 
 
 }
 
+async function fetchUsers() {
+
+    let data = await fetch('http://localhost:5000/users', {
+        method: "GET",
+        mode: "cors",
+        headers: { "Content-Type": "application/json" },
+    });
+    let usersData = await data.json();
+    for (let user of usersData) {
+        users[user.pseudo] = user.id;
+    }
+    document.getElementById('watchId').value = user_name;
+    getData();
+
+}
 
 window.onload = function () {
-    document.getElementById('watchId').value = user_id;
-    getData();
+    fetchUsers();  
     fetchShows();
-
 };
 
 

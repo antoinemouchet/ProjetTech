@@ -1,17 +1,11 @@
 {{ header }}
 
 <script>
-    let userId = {{ user_id }};
+    let user_id = {{ user_id }};
 </script>
 <script src="../static/js/recommendations.js"></script>
+<script src="../static/js/autocomplete.js"></script>
 <style>
-    p {
-        display: inline-block;
-        background-color: rgb(100, 100, 100);
-        padding: 3px;
-        border-radius: 5px;
-    }
-
     table td {
         vertical-align: middle !important;
     }
@@ -19,8 +13,6 @@
 <div class="container">
     <div id="container">
         <h1>Recommendations</h1>
-        <input id="username" type="text">
-        <input type="button" value="Get" onclick="populate_by_username()">
         <div id="displayData">
             <table class="table text-center">
 
