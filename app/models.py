@@ -62,7 +62,7 @@ class WatchList(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    status = Column(Boolean, default=False)
+    status = Column(Integer, default=0)
 
 
 # cause each WatchList can contain more than 1 show.

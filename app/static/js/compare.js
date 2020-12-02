@@ -63,7 +63,7 @@ async function fetchFriends() {
     });
     let friends_data = await data.json();
     for (let friend of friends_data.friends) {
-        friends[friend.pseudo.toLowerCase()] = friend.id;
+        friends[friend.pseudo] = friend.id;
     }
 }
 

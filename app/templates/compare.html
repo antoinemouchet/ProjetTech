@@ -11,31 +11,37 @@
     }
 </style>
 <div class="container">
+    <h1>Comparison</h1>
     <div style="margin: 2px;">
         <input type="text" id="friend_id" onkeyup="checkvalues('friend_id', 'autocomplete', friends);">
         <input type="button" class="btn btn-info" value="Get" id="friend" onclick="friend_populateTable(this.id)">
     </div>
     <div class="input-group mb-3">
-        <div id="autocomplete" class="dropdown-menu show"></div>
+        <div id="autocomplete" class="dropdown-menu"></div>
     </div>
-    <table class="table text-center d-inline align-middle">
-        <thead>
-            <tr>
-                <th>My list</th>
-            </tr>
-        </thead>
-        <tbody id="me_table">
-        </tbody>
-    </table>
-
-    <table class="table text-center d-inline align-middle">
-        <thead>
-            <tr>
-                <th>My friend's list</th>
-            </tr>
-        </thead>
-        <tbody id="friend_table">
-        </tbody>
-    </table>
+    <div class="row">
+        <div class="col-6">
+            <table class="table text-center align-middle">
+                <thead>
+                    <tr>
+                        <th>My list</th>
+                    </tr>
+                </thead>
+                <tbody id="me_table">
+                </tbody>
+            </table>
+        </div>
+        <div class="col-6">
+            <table class="table text-center align-middle">
+                <thead>
+                    <tr>
+                        <th>My friend's list</th>
+                    </tr>
+                </thead>
+                <tbody id="friend_table">
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 {{ footer }}

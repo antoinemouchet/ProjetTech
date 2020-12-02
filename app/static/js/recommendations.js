@@ -2,7 +2,7 @@ let users = {};
 
 window.onload = function () {
     fetchUsers();
-    fetchAndPopulate(userId);
+    fetchAndPopulate(user_id);
 };
 
 function rowShow(pictureLink, showName, showPath, showTag) {
@@ -80,14 +80,6 @@ async function fetchAndPopulate(userId) {
     }
 }
 
-async function populateByUsername() {
-    let user = users[document.getElementById('username').value.toLowerCase()];
-    if (user)
-        await fetchAndPopulate(user);
-    else
-        alert('user not exist');
-}
-
 async function fetchUsers() {
 
     let data = await fetch('http://localhost:5000/users', {
@@ -97,7 +89,7 @@ async function fetchUsers() {
     });
     let usersData = await data.json();
     for (let user of usersData) {
-        users[user.pseudo.toLowerCase()] = user.id;
+        users[user.pseudo] = user.id;
     }
 
 
