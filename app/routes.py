@@ -388,7 +388,7 @@ def recommendations_main_get():
     Author: Jérémie Dierickx
     """
     recommendations = env.get_template('recommendations.html')
-    return header("Watch Party") + recommendations.render(user_id=current_user.id) + footer()
+    return header("Recommendations") + recommendations.render(user_id=current_user.id) + footer()
 
 
 @app.route('/login/', methods=['POST', 'GET'])
