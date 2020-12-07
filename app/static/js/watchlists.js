@@ -52,7 +52,13 @@ async function createAndJoinWatchParty(showId) {
     location.href = "http://localhost:5000/watch/" + id;
 }
 
-
+/**
+ * Create new show row
+ * @param {*} pictureLink, show's picture
+ * @param {*} showName 
+ * @param {*} showTag, show's tags
+ * @param {*} showId, show's id
+ */
 function rowShow(pictureLink, showName, showTag, showId) {
     let row = document.createElement('tr');
 
@@ -114,6 +120,10 @@ function rowShow(pictureLink, showName, showTag, showId) {
     return row;
 }
 
+/**
+ * Populate watch list table with its shows.
+ * @param {Array} list 
+ */
 function populateTable(list) {
     let tbody = document.getElementById('tshows');
     tbody.innerHTML = null;
@@ -122,6 +132,10 @@ function populateTable(list) {
     }
 }
 
+/**
+ * Modify the status of the watch list (Client side only)
+ * @param {Number} status, id
+ */
 function changeStatus(status) {
     let statusButton = document.getElementById('status');
     statusButton.status = status;
@@ -161,6 +175,9 @@ async function createWatchList() {
     }
 }
 
+/**
+ * Send changes in watchlist's shows and status
+ */
 async function sendChanges() {
     let watchListId = users[document.getElementById('watchId').value];
     if (watchListId >= 0 && Object.keys(changes).length > 0) {
@@ -176,7 +193,9 @@ async function sendChanges() {
     }
 }
 
-
+/**
+ * Change and send new status.
+ */
 async function sendStatus() {
     let statusButton = document.getElementById('status');
     let status = statusButton.status;
@@ -184,6 +203,10 @@ async function sendStatus() {
     sendChanges();
 }
 
+/**
+ * Fetch watch list data.
+ * @param {Number} watchListId 
+ */
 async function fetchData(watchListId) {
 
     let data = await fetch('http://localhost:5000/list/' + watchListId, {
@@ -194,7 +217,9 @@ async function fetchData(watchListId) {
     return await data.json();
 }
 
-
+/**
+ * Fetch all shows and populate the shows dictionary.
+ */
 async function fetchShows() {
 
     let data = await fetch('http://localhost:5000/shows/', {
@@ -210,6 +235,9 @@ async function fetchShows() {
 
 }
 
+/**
+ * Fetch all users and populate the users dictionary.
+ */
 async function fetchUsers() {
 
     let data = await fetch('http://localhost:5000/users', {
@@ -230,10 +258,3 @@ window.onload = function () {
     fetchUsers();  
     fetchShows();
 };
-
-
-
-
-
-
-
