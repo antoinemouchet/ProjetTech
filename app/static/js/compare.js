@@ -1,5 +1,10 @@
 let friends = {};
 
+/**
+ * Create new row node. 
+ * @param {String} pictureLink, link to the show's picture. 
+ * @param {String} showName, name of the show.
+ */
 function C_rowShows(pictureLink, showName) {
     let row = document.createElement('tr');
     // Elements
@@ -23,7 +28,11 @@ function C_rowShows(pictureLink, showName) {
     return row;
 }
 
-
+/**
+ * Populate the corresponding table body with the watch list of the corresponding user.
+ * @param {Number} userId, user's id.
+ * @param {String} tbodyId, HMTL id of the table body to populate. 
+ */
 async function C_populateTable(userId, tbodyId) {
     let json = await fetchData(userId);
     if (json.error) {
@@ -37,6 +46,10 @@ async function C_populateTable(userId, tbodyId) {
     }
 }
 
+/**
+ * Populate table of the given type.
+ * @param {String} type, used to get the corresponding elements. For the type "friend", will get elements with "friend_id" and "friend_table" HTML ids. 
+ */
 async function friend_populateTable(type) {
     let friendId = friends[document.getElementById(type + '_id').value];
     if (friendId)
@@ -44,6 +57,10 @@ async function friend_populateTable(type) {
 
 }
 
+/**
+ * Fetch Watch list data for the given user id.
+ * @param {Number} userId 
+ */
 async function fetchData(userId) {
 
     let data = await fetch('http://localhost:5000/list/' + userId, {
@@ -54,6 +71,9 @@ async function fetchData(userId) {
     return await data.json();
 }
 
+/**
+ * Fetch current user's friend list and populate the friends dictionary.
+ */
 async function fetchFriends() {
 
     let data = await fetch('http://localhost:5000/friends/' + user_id, {
