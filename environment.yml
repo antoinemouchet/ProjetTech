@@ -1,0 +1,5 @@
+name: projet
+channels:
+  - defaults
+dependencies:
+  - python=3.7
